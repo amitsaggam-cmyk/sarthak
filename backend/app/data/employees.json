@@ -1,0 +1,20 @@
+[
+  {
+    "employee_id": "EMP-1001",
+    "employee_name": "Aarav Sharma",
+    "date_of_joining": "2021-04-12",
+    "last_working_day": "2025-06-30"
+  },
+  {
+    "employee_id": "EMP-1002",
+    "employee_name": "Maya Iyer",
+    "date_of_joining": "2020-01-20",
+    "last_working_day": "2024-12-15"
+  },
+  {
+    "employee_id": "EMP-1002",
+    "employee_name": "Sneha Kulkarni",
+    "date_of_joining": "2023-01-09",
+    "last_working_day": "2026-02-28"
+  }
+]

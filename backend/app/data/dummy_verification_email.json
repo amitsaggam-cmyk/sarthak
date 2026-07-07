@@ -1,0 +1,6 @@
+{
+  "id": 999,
+  "sender": "dummy.vendor@example.com",
+  "subject": "Dummy background verification request",
+  "body": "Hello HR Team,\n\nPlease verify the employment details below.\n\nEmployee ID: EMP-1001\nEmployee Name: Aarav Sharma\nDate of Joining: 2021-04-12\nLast Working Day: 2025-06-30\n\nRegards,\nDummy Verification Team"
+}
