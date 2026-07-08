@@ -1,10 +1,14 @@
 from datetime import date, datetime
+import logging
 from typing import Any
 
 import httpx
 
 from app.core.config import get_settings
 from app.models.schemas import ClaimedEmployeeDetails, WorkdayEmployeeDetails
+
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_date(value: Any) -> date | None:
@@ -40,10 +44,12 @@ async def fetch_workday_details(claimed: ClaimedEmployeeDetails) -> WorkdayEmplo
 
     settings = get_settings()
     if not settings.workday_raas_url:
+        logger.warning("[WORKDAY] WORKDAY_RAAS_URL is not configured")
         return None
 
     lookup_value = claimed.employee_name or claimed.employee_id
     if not lookup_value:
+        logger.warning("[WORKDAY] No employee name/id available for lookup")
         return None
 
     params = {
@@ -55,9 +61,16 @@ async def fetch_workday_details(claimed: ClaimedEmployeeDetails) -> WorkdayEmplo
         auth = (settings.workday_raas_username, settings.workday_raas_password)
 
     async with httpx.AsyncClient(timeout=60.0, verify=settings.workday_raas_verify_ssl) as client:
+        logger.info(
+            "[WORKDAY] Calling RaaS url=%s param=%s value=%r",
+            settings.workday_raas_url,
+            settings.workday_lookup_param,
+            lookup_value,
+        )
         response = await client.get(settings.workday_raas_url, params=params, auth=auth)
         response.raise_for_status()
         rows = _rows_from_payload(response.json())
+        logger.info("[WORKDAY] RaaS returned rows=%s", len(rows))
 
     if not rows:
         return None

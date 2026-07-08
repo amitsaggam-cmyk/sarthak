@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     llama_verify_ssl: bool = False
     mail_provider: str = "MOCK"
     mail_poll_interval: int = 5
+    mail_processing_batch_size: int = 5
     email_source: str = "file"
     enable_background_ingestion: bool = False
     enable_background_processing: bool = False

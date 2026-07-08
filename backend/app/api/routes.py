@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 from pathlib import Path
 
 import httpx
@@ -32,6 +33,7 @@ from app.services.verification import verify_email
 from app.services.verification_processor import process_pending_emails
 
 router = APIRouter(prefix="/api", tags=["HR Verification"])
+logger = logging.getLogger(__name__)
 
 
 def raise_database_unavailable(exc: SQLAlchemyError) -> None:
@@ -118,7 +120,9 @@ async def list_emails(current_user: User = Depends(get_current_user)) -> list[Em
 async def ingest_gmail(current_user: User = Depends(get_current_user)) -> dict[str, int]:
     """Manually pull Gmail IMAP messages into SQL."""
 
+    logger.info("[API] Gmail ingestion requested by user=%s", current_user.email)
     inserted = await ingest_gmail_messages()
+    logger.info("[API] Gmail ingestion completed inserted=%s", inserted)
     return {"inserted": inserted}
 
 
@@ -126,7 +130,14 @@ async def ingest_gmail(current_user: User = Depends(get_current_user)) -> dict[s
 async def process_emails(current_user: User = Depends(get_current_user)) -> dict[str, int]:
     """Manually process stored emails through LLM + Workday matching."""
 
+    settings = get_settings()
+    logger.info(
+        "[API] Verification processing requested by user=%s batch_size=%s",
+        current_user.email,
+        settings.mail_processing_batch_size,
+    )
     processed = await process_pending_emails()
+    logger.info("[API] Verification processing completed processed=%s", processed)
     return {"processed": processed}
 
 
@@ -161,6 +172,7 @@ async def list_decision_logs(
     """Return decision audit rows for the dashboard logs page."""
 
     email_source = get_email_source()
+    logger.info("[API] Verification opened email_id=%s user=%s", email_id, current_user.email)
 
     if isinstance(email_source, FileEmailSource):
         return _file_decision_logs(current_user)

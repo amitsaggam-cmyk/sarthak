@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import date
 
 import httpx
@@ -6,10 +7,14 @@ from sqlalchemy import select
 
 from app.db.models import Email
 from app.db.session import AsyncSessionLocal
+from app.core.config import get_settings
 from app.models.schemas import ClaimedEmployeeDetails, FieldMatchResult, WorkdayEmployeeDetails
 from app.services.llm_client import extract_claimed_details_with_llm
 from app.services.parser import parse_verification_email
 from app.services.workday_raas import fetch_workday_details
+
+
+logger = logging.getLogger(__name__)
 
 
 def _date_text(value: date | str | None) -> str | None:
@@ -36,25 +41,61 @@ def _date_result(
 async def process_email(email_id: int) -> bool:
     """Extract, match with Workday, and store verification data for one DB email."""
 
+    logger.info("[PROCESS] Starting email_id=%s", email_id)
     async with AsyncSessionLocal() as session:
         row = await session.get(Email, email_id)
         if not row:
+            logger.warning("[PROCESS] Email not found email_id=%s", email_id)
             return False
         row.processing_status = "pending"
         await session.commit()
 
     try:
         try:
+            logger.info("[LLM] Extracting claimed details email_id=%s subject=%r", email_id, row.subject)
             claimed = extract_claimed_details_with_llm(row.body)
-        except Exception:
+            logger.info(
+                "[LLM] Extracted email_id=%s name=%r doj=%s lwd=%s",
+                email_id,
+                claimed.employee_name,
+                claimed.date_of_joining,
+                claimed.last_working_day,
+            )
+        except Exception as exc:
+            logger.warning(
+                "[LLM] Extraction failed email_id=%s; falling back to regex parser. error=%s",
+                email_id,
+                exc,
+            )
             claimed = parse_verification_email(row.body)
 
+        logger.info("[WORKDAY] Looking up employee email_id=%s name=%r", email_id, claimed.employee_name)
         workday = await fetch_workday_details(claimed)
+        if workday:
+            logger.info(
+                "[WORKDAY] Found email_id=%s name=%r doj=%s lwd=%s",
+                email_id,
+                workday.employee_name,
+                workday.date_of_joining,
+                workday.last_working_day,
+            )
+        else:
+            logger.warning("[WORKDAY] No Workday record found email_id=%s", email_id)
+
         field_results = [
             _date_result("date_of_joining", claimed, workday),
             _date_result("last_working_day", claimed, workday),
         ]
         all_fields_match = all(result.matches for result in field_results)
+        for result in field_results:
+            logger.info(
+                "[MATCH] email_id=%s field=%s claimed=%r workday=%r match=%s",
+                email_id,
+                result.field,
+                result.claimed_value,
+                result.workday_value,
+                result.matches,
+            )
 
         async with AsyncSessionLocal() as session:
             current = await session.get(Email, email_id)
@@ -71,8 +112,10 @@ async def process_email(email_id: int) -> bool:
             current.processing_status = "completed"
             current.processing_error = None
             await session.commit()
+        logger.info("[PROCESS] Stored result email_id=%s all_fields_match=%s", email_id, all_fields_match)
         return True
     except (httpx.HTTPError, ValueError, RuntimeError) as exc:
+        logger.exception("[PROCESS] Failed email_id=%s error=%s", email_id, exc)
         async with AsyncSessionLocal() as session:
             current = await session.get(Email, email_id)
             if current:
@@ -95,19 +138,24 @@ async def process_next_email() -> int | None:
         email_id = result.scalar_one_or_none()
 
     if email_id is None:
+        logger.info("[BATCH] No unprocessed emails found")
         return None
 
     await process_email(email_id)
     return email_id
 
 
-async def process_pending_emails(limit: int = 10) -> int:
+async def process_pending_emails(limit: int | None = None) -> int:
     """Process a bounded batch for manual API calls or background loops."""
 
+    settings = get_settings()
+    batch_limit = limit or settings.mail_processing_batch_size
+    logger.info("[BATCH] Starting processing batch limit=%s", batch_limit)
     processed = 0
-    for _ in range(limit):
+    for _ in range(batch_limit):
         email_id = await process_next_email()
         if email_id is None:
             break
         processed += 1
+    logger.info("[BATCH] Finished processing batch processed=%s", processed)
     return processed

@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,15 +13,26 @@ from app.services.gmail_imap_ingestor import ingest_gmail_messages
 from app.services.verification_processor import process_pending_emails
 
 
+def configure_logging() -> None:
+    """Make backend workflow steps visible in the terminal."""
+
+    settings = get_settings()
+    logging.basicConfig(
+        level=getattr(logging, settings.log_level.upper(), logging.INFO),
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    )
+
+
 async def gmail_ingestion_loop() -> None:
     """Poll Gmail IMAP in the background when enabled in `.env`."""
 
     while True:
         settings = get_settings()
         try:
+            logging.getLogger(__name__).info("[LOOP] Gmail ingestion tick")
             await ingest_gmail_messages()
         except Exception as exc:
-            print(f"Gmail ingestion failed: {exc}")
+            logging.getLogger(__name__).exception("[LOOP] Gmail ingestion failed: %s", exc)
         await asyncio.sleep(settings.mail_poll_interval)
 
 
@@ -30,15 +42,20 @@ async def verification_processing_loop() -> None:
     while True:
         settings = get_settings()
         try:
-            await process_pending_emails(limit=1)
+            logging.getLogger(__name__).info(
+                "[LOOP] Verification processing tick batch_size=%s",
+                settings.mail_processing_batch_size,
+            )
+            await process_pending_emails(limit=settings.mail_processing_batch_size)
         except Exception as exc:
-            print(f"Verification processing failed: {exc}")
+            logging.getLogger(__name__).exception("[LOOP] Verification processing failed: %s", exc)
         await asyncio.sleep(settings.mail_poll_interval)
 
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
 
+    configure_logging()
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
@@ -69,11 +86,14 @@ async def startup() -> None:
     if get_settings().email_source.lower() == "file":
         return
     try:
+        logging.getLogger(__name__).info("[STARTUP] Initializing database")
         await initialize_database()
     except SQLAlchemyError as exc:
-        print(f"Database startup check failed: {exc}")
+        logging.getLogger(__name__).exception("[STARTUP] Database startup check failed: %s", exc)
     settings = get_settings()
     if settings.enable_background_ingestion:
+        logging.getLogger(__name__).info("[STARTUP] Starting Gmail ingestion background loop")
         asyncio.create_task(gmail_ingestion_loop())
     if settings.enable_background_processing:
+        logging.getLogger(__name__).info("[STARTUP] Starting verification processing background loop")
         asyncio.create_task(verification_processing_loop())

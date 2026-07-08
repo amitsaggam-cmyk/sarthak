@@ -1,6 +1,7 @@
 import asyncio
 import email
 import imaplib
+import logging
 import re
 from dataclasses import dataclass
 from email.header import decode_header, make_header
@@ -13,6 +14,9 @@ from sqlalchemy import select
 from app.core.config import get_settings
 from app.db.models import Email, EmailAttachment
 from app.db.session import AsyncSessionLocal
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -75,16 +79,32 @@ def _fetch_from_imap() -> list[ParsedMail]:
     settings = get_settings()
     mails: list[ParsedMail] = []
 
+    logger.info(
+        "[GMAIL] Connecting host=%s port=%s mailbox=%s criteria=%s",
+        settings.gmail_imap_host,
+        settings.gmail_imap_port,
+        settings.gmail_imap_mailbox,
+        settings.gmail_imap_search_criteria,
+    )
     with imaplib.IMAP4_SSL(settings.gmail_imap_host, settings.gmail_imap_port) as mailbox:
         mailbox.login(settings.gmail_imap_username, settings.gmail_imap_password)
         mailbox.select(settings.gmail_imap_mailbox)
         _, search_data = mailbox.search(None, settings.gmail_imap_search_criteria)
+        message_nums = search_data[0].split()
+        logger.info("[GMAIL] Found %s matching message(s)", len(message_nums))
 
-        for message_num in search_data[0].split():
+        for message_num in message_nums:
             _, message_data = mailbox.fetch(message_num, "(RFC822)")
             raw_message = message_data[0][1]
             message = email.message_from_bytes(raw_message)
             body, attachments = _body_from_message(message)
+            logger.info(
+                "[GMAIL] Parsed message_num=%s subject=%r attachments=%s body_chars=%s",
+                message_num.decode(errors="replace"),
+                _decode(message.get("Subject")) or "No subject",
+                len(attachments),
+                len(body),
+            )
             mails.append(
                 ParsedMail(
                     message_id=message.get("Message-ID") or f"imap-{message_num.decode()}",
@@ -103,8 +123,10 @@ async def ingest_gmail_messages() -> int:
 
     settings = get_settings()
     if not settings.gmail_imap_username or not settings.gmail_imap_password:
+        logger.warning("[GMAIL] Skipping ingestion because username/password are not configured")
         return 0
 
+    logger.info("[GMAIL] Starting ingestion")
     parsed_mails = await asyncio.to_thread(_fetch_from_imap)
     attachment_root = Path(settings.gmail_attachment_dir)
     attachment_root.mkdir(parents=True, exist_ok=True)
@@ -116,6 +138,7 @@ async def ingest_gmail_messages() -> int:
                 select(Email.id).where(Email.external_message_id == parsed.message_id)
             )
             if existing:
+                logger.info("[GMAIL] Skipping duplicate message_id=%s existing_email_id=%s", parsed.message_id, existing)
                 continue
 
             email_row = Email(
@@ -142,9 +165,17 @@ async def ingest_gmail_messages() -> int:
                         size_bytes=len(attachment.payload),
                     )
                 )
+                logger.info(
+                    "[GMAIL] Saved attachment email_id=%s filename=%r bytes=%s",
+                    email_row.id,
+                    attachment.filename,
+                    len(attachment.payload),
+                )
 
             inserted += 1
+            logger.info("[GMAIL] Inserted email_id=%s subject=%r", email_row.id, parsed.subject)
 
         await session.commit()
 
+    logger.info("[GMAIL] Finished ingestion inserted=%s", inserted)
     return inserted

@@ -1,9 +1,13 @@
 import httpx
 import json
+import logging
 import re
 
 from app.core.config import get_settings
 from app.models.schemas import ClaimedEmployeeDetails
+
+
+logger = logging.getLogger(__name__)
 
 
 def test_llama_connection(prompt: str) -> str:
@@ -36,6 +40,7 @@ def _chat(prompt: str) -> str:
 
     settings = get_settings()
     base_url = settings.llama_base_url.rstrip("/")
+    logger.info("[LLM] Sending chat request model=%s prompt_chars=%s", settings.llama_model, len(prompt))
     payload = {
         "model": settings.llama_model,
         "messages": [{"role": "user", "content": prompt}],
@@ -51,7 +56,9 @@ def _chat(prompt: str) -> str:
         data = response.json()
 
     message = data.get("message", {})
-    return str(message.get("content") if isinstance(message, dict) else data)
+    content = str(message.get("content") if isinstance(message, dict) else data)
+    logger.info("[LLM] Received chat response chars=%s", len(content))
+    return content
 
 
 def _json_from_text(value: str) -> dict:
