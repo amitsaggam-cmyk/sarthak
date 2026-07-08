@@ -1,5 +1,6 @@
-import { ArrowLeft, Check, ShieldCheck, X } from "lucide-react";
-import { downloadAttachment } from "../api";
+import { ArrowLeft, Check, Download, Eye, ShieldCheck, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { downloadAttachment, getAttachmentPreview } from "../api";
 import { StatusBadge } from "./Badges";
 
 function ComparisonTable({ verification }) {
@@ -45,6 +46,36 @@ export default function VerificationDetail({
 }) {
   const claimed = verification.claimed_details || {};
   const workday = verification.workday_details || {};
+  const [preview, setPreview] = useState(null);
+  const [previewError, setPreviewError] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (preview?.url) {
+        URL.revokeObjectURL(preview.url);
+      }
+    };
+  }, [preview]);
+
+  async function openAttachment(attachment) {
+    setPreviewError("");
+    try {
+      const nextPreview = await getAttachmentPreview(attachment);
+      setPreview((current) => {
+        if (current?.url) URL.revokeObjectURL(current.url);
+        return { ...nextPreview, filename: attachment.filename };
+      });
+    } catch (err) {
+      setPreviewError(err.message);
+    }
+  }
+
+  function closePreview() {
+    setPreview((current) => {
+      if (current?.url) URL.revokeObjectURL(current.url);
+      return null;
+    });
+  }
 
   return (
     <div className="detailStack">
@@ -106,20 +137,31 @@ export default function VerificationDetail({
         {verification.attachments?.length ? (
           <div className="attachmentList">
             {verification.attachments.map((attachment) => (
-              <button
+              <div
                 className="attachmentItem"
                 key={attachment.id}
-                onClick={() => downloadAttachment(attachment)}
-                type="button"
               >
-                <span>{attachment.filename}</span>
-                <small>{attachment.content_type || "file"} · {attachment.size_bytes} bytes</small>
-              </button>
+                <span>
+                  <strong>{attachment.filename}</strong>
+                  <small>{attachment.content_type || "file"} · {attachment.size_bytes} bytes</small>
+                </span>
+                <span className="attachmentActions">
+                  <button onClick={() => openAttachment(attachment)} type="button">
+                    <Eye size={16} />
+                    View
+                  </button>
+                  <button onClick={() => downloadAttachment(attachment)} type="button">
+                    <Download size={16} />
+                    Download
+                  </button>
+                </span>
+              </div>
             ))}
           </div>
         ) : (
           <p className="emptyText">No documents attached.</p>
         )}
+        {previewError && <p className="errorText">{previewError}</p>}
       </section>
 
       <section className="panel">
@@ -142,6 +184,28 @@ export default function VerificationDetail({
         <h2>Original Email</h2>
         <pre>{verification.body}</pre>
       </section>
+
+      {preview && (
+        <div className="documentModal" role="dialog" aria-modal="true">
+          <div className="documentModalPanel">
+            <div className="documentModalHeader">
+              <h2>{preview.filename}</h2>
+              <button className="iconAction" onClick={closePreview} type="button">
+                <X size={18} />
+              </button>
+            </div>
+            {preview.contentType.includes("pdf") ? (
+              <iframe className="documentFrame" src={preview.url} title={preview.filename} />
+            ) : preview.contentType.startsWith("image/") ? (
+              <img className="documentImage" src={preview.url} alt={preview.filename} />
+            ) : (
+              <div className="documentFallback">
+                Preview is available for PDF and image files. Use Download for this attachment.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

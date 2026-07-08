@@ -6,9 +6,16 @@ import LogsView from "./views/LogsView";
 import MailsView from "./views/MailsView";
 import SettingsView from "./views/SettingsView";
 
+const pages = new Set(["mails", "logs", "settings"]);
+
+function viewFromHash() {
+  const page = window.location.hash.replace("#/", "");
+  return pages.has(page) ? page : "mails";
+}
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(Boolean(getToken()));
-  const [activeView, setActiveView] = useState("mails");
+  const [activeView, setActiveView] = useState(viewFromHash);
   const [account, setAccount] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,13 +28,30 @@ export default function App() {
     clearToken();
     setIsAuthenticated(false);
     setAccount(null);
-    setActiveView("mails");
+    window.location.hash = "#/mails";
+  }
+
+  function navigateTo(view) {
+    window.location.hash = `#/${view}`;
   }
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? "dark" : "light";
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
+
+  useEffect(() => {
+    function syncViewFromHash() {
+      setActiveView(viewFromHash());
+    }
+
+    if (!window.location.hash) {
+      window.location.hash = "#/mails";
+    }
+    window.addEventListener("hashchange", syncViewFromHash);
+    syncViewFromHash();
+    return () => window.removeEventListener("hashchange", syncViewFromHash);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -51,7 +75,7 @@ export default function App() {
         account={account}
         activeView={activeView}
         onLogout={handleLogout}
-        onNavigate={setActiveView}
+        onNavigate={navigateTo}
       />
       <div className="contentShell">
         <main className="pageContent">

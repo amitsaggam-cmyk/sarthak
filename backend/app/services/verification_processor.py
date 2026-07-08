@@ -38,6 +38,14 @@ def _date_result(
     )
 
 
+def _has_claimed_details(claimed: ClaimedEmployeeDetails) -> bool:
+    return bool(
+        claimed.employee_name
+        or claimed.date_of_joining
+        or claimed.last_working_day
+    )
+
+
 async def process_email(email_id: int) -> bool:
     """Extract, match with Workday, and store verification data for one DB email."""
 
@@ -51,16 +59,9 @@ async def process_email(email_id: int) -> bool:
         await session.commit()
 
     try:
+        logger.info("[LLM] Extracting claimed details email_id=%s subject=%r", email_id, row.subject)
         try:
-            logger.info("[LLM] Extracting claimed details email_id=%s subject=%r", email_id, row.subject)
             claimed = extract_claimed_details_with_llm(row.body)
-            logger.info(
-                "[LLM] Extracted email_id=%s name=%r doj=%s lwd=%s",
-                email_id,
-                claimed.employee_name,
-                claimed.date_of_joining,
-                claimed.last_working_day,
-            )
         except Exception as exc:
             logger.warning(
                 "[LLM] Extraction failed email_id=%s; falling back to regex parser. error=%s",
@@ -68,6 +69,17 @@ async def process_email(email_id: int) -> bool:
                 exc,
             )
             claimed = parse_verification_email(row.body)
+
+        if not _has_claimed_details(claimed):
+            raise ValueError("Could not extract employee name, date of joining, or last working day from email.")
+
+        logger.info(
+            "[LLM] Extracted email_id=%s name=%r doj=%s lwd=%s",
+            email_id,
+            claimed.employee_name,
+            claimed.date_of_joining,
+            claimed.last_working_day,
+        )
 
         logger.info("[WORKDAY] Looking up employee email_id=%s name=%r", email_id, claimed.employee_name)
         workday = await fetch_workday_details(claimed)
@@ -114,7 +126,7 @@ async def process_email(email_id: int) -> bool:
             await session.commit()
         logger.info("[PROCESS] Stored result email_id=%s all_fields_match=%s", email_id, all_fields_match)
         return True
-    except (httpx.HTTPError, ValueError, RuntimeError) as exc:
+    except (httpx.HTTPError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
         logger.exception("[PROCESS] Failed email_id=%s error=%s", email_id, exc)
         async with AsyncSessionLocal() as session:
             current = await session.get(Email, email_id)

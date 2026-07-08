@@ -78,9 +78,12 @@ def extract_claimed_details_with_llm(mail_text: str) -> ClaimedEmployeeDetails:
 
     prompt = f"""
 Extract employee verification details from this email.
+The details may appear in plain text, forwarded email chains, bullet points, or HTML/table-like text.
+Understand the message semantically and extract the employee details requested for verification.
 Return only valid JSON with these keys:
 employee_name, date_of_joining, last_working_day.
 Dates must be ISO format YYYY-MM-DD. Use null when a value is absent.
+Do not include markdown, explanations, or extra keys.
 
 Email:
 {mail_text}

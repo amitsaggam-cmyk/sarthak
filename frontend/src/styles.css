@@ -814,13 +814,14 @@ textarea {
 }
 
 .attachmentItem {
+  align-items: center;
   background: var(--bg-row);
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text-main);
-  cursor: pointer;
-  display: grid;
+  display: flex;
   gap: 4px;
+  justify-content: space-between;
   padding: 10px;
   text-decoration: none;
   text-align: left;
@@ -832,6 +833,99 @@ textarea {
 
 .attachmentItem small {
   color: var(--text-muted);
+  display: block;
+  margin-top: 4px;
+}
+
+.attachmentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attachmentActions button {
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-main);
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 10px;
+}
+
+.attachmentActions button:hover {
+  border-color: var(--primary);
+}
+
+.errorText {
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+.documentModal {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.72);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 20;
+}
+
+.documentModalPanel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  height: min(88vh, 900px);
+  max-width: 1100px;
+  padding: 14px;
+  width: min(90vw, 1100px);
+}
+
+.documentModalHeader {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.documentModalHeader h2 {
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.documentFrame,
+.documentImage,
+.documentFallback {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.documentImage {
+  object-fit: contain;
+}
+
+.documentFallback {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: center;
+  padding: 24px;
 }
 
 .spin {
@@ -875,6 +969,11 @@ textarea {
   .logSummary,
   .matchRow {
     grid-template-columns: 1fr;
+  }
+
+  .attachmentItem {
+    align-items: flex-start;
+    display: grid;
   }
 
   .inboxPanel {

@@ -109,3 +109,21 @@ export async function downloadAttachment(attachment) {
   link.remove();
   URL.revokeObjectURL(url);
 }
+
+export async function getAttachmentPreview(attachment) {
+  const response = await fetch(`${API_BASE_URL}/attachments/${attachment.id}/download`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Attachment preview failed");
+  }
+
+  const blob = await response.blob();
+  return {
+    url: URL.createObjectURL(blob),
+    contentType: blob.type || attachment.content_type || "application/octet-stream",
+  };
+}
