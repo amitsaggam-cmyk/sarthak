@@ -6,12 +6,15 @@ import LogsView from "./views/LogsView";
 import MailsView from "./views/MailsView";
 import SettingsView from "./views/SettingsView";
 
+
 const pages = new Set(["mails", "logs", "settings"]);
+
 
 function viewFromHash() {
   const page = window.location.hash.replace("#/", "");
   return pages.has(page) ? page : "mails";
 }
+
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(Boolean(getToken()));
@@ -24,6 +27,7 @@ export default function App() {
     localStorage.getItem("theme") !== "light",
   );
 
+
   function handleLogout() {
     clearToken();
     setIsAuthenticated(false);
@@ -31,19 +35,23 @@ export default function App() {
     window.location.hash = "#/mails";
   }
 
+
   function navigateTo(view) {
     window.location.hash = `#/${view}`;
   }
+
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? "dark" : "light";
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
+
   useEffect(() => {
     function syncViewFromHash() {
       setActiveView(viewFromHash());
     }
+
 
     if (!window.location.hash) {
       window.location.hash = "#/mails";
@@ -53,8 +61,10 @@ export default function App() {
     return () => window.removeEventListener("hashchange", syncViewFromHash);
   }, []);
 
+
   useEffect(() => {
     if (!isAuthenticated) return;
+
 
     accountApi
       .me()
@@ -65,9 +75,11 @@ export default function App() {
       });
   }, [isAuthenticated]);
 
+
   if (!isAuthenticated) {
     return <AuthPage onAuthenticated={() => setIsAuthenticated(true)} />;
   }
+
 
   return (
     <div className="appShell">
@@ -108,3 +120,6 @@ export default function App() {
     </div>
   );
 }
+
+
+

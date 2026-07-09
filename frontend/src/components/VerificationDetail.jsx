@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { downloadAttachment, getAttachmentPreview } from "../api";
 import { StatusBadge } from "./Badges";
 
+
 function ComparisonTable({ verification }) {
   return (
     <section className="panel">
@@ -38,6 +39,7 @@ function ComparisonTable({ verification }) {
   );
 }
 
+
 export default function VerificationDetail({
   decisionMessage,
   onBack,
@@ -49,6 +51,7 @@ export default function VerificationDetail({
   const [preview, setPreview] = useState(null);
   const [previewError, setPreviewError] = useState("");
 
+
   useEffect(() => {
     return () => {
       if (preview?.url) {
@@ -56,6 +59,7 @@ export default function VerificationDetail({
       }
     };
   }, [preview]);
+
 
   async function openAttachment(attachment) {
     setPreviewError("");
@@ -70,6 +74,7 @@ export default function VerificationDetail({
     }
   }
 
+
   function closePreview() {
     setPreview((current) => {
       if (current?.url) URL.revokeObjectURL(current.url);
@@ -77,12 +82,14 @@ export default function VerificationDetail({
     });
   }
 
+
   return (
     <div className="detailStack">
       <button className="backButton" onClick={onBack} type="button">
         <ArrowLeft size={17} />
         Back to mails
       </button>
+
 
       <div className="reviewHeader">
         <div>
@@ -93,7 +100,9 @@ export default function VerificationDetail({
         <StatusBadge match={verification.all_fields_match} />
       </div>
 
+
       <ComparisonTable verification={verification} />
+
 
       <section className="twoColumn">
         <div className="panel">
@@ -132,6 +141,7 @@ export default function VerificationDetail({
         </div>
       </section>
 
+
       <section className="panel">
         <h2>Attachments</h2>
         {verification.attachments?.length ? (
@@ -164,6 +174,7 @@ export default function VerificationDetail({
         {previewError && <p className="errorText">{previewError}</p>}
       </section>
 
+
       <section className="panel">
         <h2>Response Preview</h2>
         <textarea readOnly value={verification.recommended_reply} />
@@ -180,10 +191,12 @@ export default function VerificationDetail({
         </div>
       </section>
 
+
       <section className="panel">
         <h2>Original Email</h2>
         <pre>{verification.body}</pre>
       </section>
+
 
       {preview && (
         <div className="documentModal" role="dialog" aria-modal="true">
@@ -209,3 +222,6 @@ export default function VerificationDetail({
     </div>
   );
 }
+
+
+

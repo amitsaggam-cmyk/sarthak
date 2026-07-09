@@ -21,6 +21,7 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+
 :root[data-theme="dark"] {
   --primary: #3b82f6;
   --primary-dark: #2563eb;
@@ -37,6 +38,7 @@
   --danger-bg: #450a0a;
   --warning-bg: #451a03;
 }
+
 
 :root[data-theme="light"] {
   --primary: #2563eb;
@@ -57,14 +59,17 @@
   --warning-bg: #fef3c7;
 }
 
+
 * {
   box-sizing: border-box;
 }
+
 
 body {
   margin: 0;
   overflow-x: hidden;
 }
+
 
 button,
 input,
@@ -72,19 +77,23 @@ textarea {
   font: inherit;
 }
 
+
 h1,
 h2,
 p {
   margin: 0;
 }
 
+
 button {
   border: 0;
 }
 
+
 .appShell {
   min-height: 100vh;
 }
+
 
 .sidebar {
   background: var(--bg-sidebar);
@@ -98,32 +107,37 @@ button {
   width: 220px;
 }
 
+
 .sidebarLogo {
   color: #ffffff;
   display: grid;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 600;
   gap: 2px;
   margin-bottom: 22px;
   padding: 4px 6px;
 }
 
+
 :root[data-theme="light"] .sidebarLogo {
   color: #111827;
 }
 
+
 .sidebarLogo small {
   color: var(--text-muted);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.4px;
   text-transform: uppercase;
 }
+
 
 .navList {
   display: grid;
   gap: 6px;
 }
+
 
 .navItem {
   align-items: center;
@@ -132,7 +146,7 @@ button {
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
-  font-weight: 700;
+  font-weight: 600;
   gap: 10px;
   min-height: 42px;
   padding: 10px 12px;
@@ -140,15 +154,18 @@ button {
   transition: background 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
+
 .navItem:hover {
   background: var(--bg-muted);
   color: var(--text-main);
 }
 
+
 .navItem.active {
   background: var(--primary);
   color: #ffffff;
 }
+
 
 .sidebarFooter {
   border-top: 1px solid var(--border);
@@ -158,12 +175,14 @@ button {
   padding-top: 12px;
 }
 
+
 .sidebarUser {
   align-items: center;
   display: grid;
   gap: 9px;
   grid-template-columns: 34px minmax(0, 1fr);
 }
+
 
 .sidebarUser strong,
 .sidebarUser small {
@@ -173,10 +192,12 @@ button {
   white-space: nowrap;
 }
 
+
 .sidebarUser small {
   color: var(--text-muted);
   font-size: 11px;
 }
+
 
 .sidebarLogout {
   align-items: center;
@@ -185,22 +206,25 @@ button {
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
-  font-weight: 700;
+  font-weight: 600;
   gap: 8px;
   min-height: 36px;
   padding: 8px 10px;
 }
+
 
 .sidebarLogout:hover {
   background: var(--bg-card);
   color: var(--text-main);
 }
 
+
 .contentShell {
   margin-left: 220px;
   min-width: 0;
   overflow-x: hidden;
 }
+
 
 .topBar {
   align-items: center;
@@ -216,22 +240,26 @@ button {
   z-index: 5;
 }
 
+
 .topBar > div:first-child {
   margin-right: auto;
 }
 
+
 .topBar h1 {
-  font-size: 24px;
-  font-weight: 800;
+    font-size:18px;
+    font-weight:600;
 }
+
 
 .eyebrow {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.4px;
   text-transform: uppercase;
 }
+
 
 .profileChip {
   align-items: center;
@@ -240,6 +268,7 @@ button {
   gap: 8px;
 }
 
+
 .avatar {
   align-items: center;
   background: var(--primary);
@@ -247,15 +276,17 @@ button {
   color: #ffffff;
   display: flex;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   height: 34px;
   justify-content: center;
   width: 34px;
 }
 
+
 .profileName {
-  font-weight: 700;
+  font-weight: 600;
 }
+
 
 .pageContent {
   background: var(--bg-app);
@@ -263,11 +294,13 @@ button {
   padding: 14px;
 }
 
+
 .mailsPage,
 .contentPage {
   display: grid;
   gap: 12px;
 }
+
 
 .pageTitleRow {
   align-items: center;
@@ -275,11 +308,14 @@ button {
   justify-content: space-between;
 }
 
+
 .pageTitleRow h1 {
   color: var(--text-main);
-  font-size: 20px;
-  font-weight: 800;
+  font-size:42px;
+  font-weight:600;
+  line-height:1.15;
 }
+
 
 .panel,
 .reviewHeader {
@@ -291,6 +327,7 @@ button {
   padding: 14px;
 }
 
+
 .panelHeader {
   align-items: center;
   display: flex;
@@ -298,12 +335,14 @@ button {
   margin-bottom: 14px;
 }
 
+
 .panelHeader h2,
 .panel h2,
 .reviewHeader h2 {
-  font-size: 17px;
-  font-weight: 800;
+  font-size: 30px;
+  font-weight: 600;
 }
+
 
 .inboxPanel {
   height: auto;
@@ -312,6 +351,7 @@ button {
   position: static;
 }
 
+
 .emailList,
 .detailStack,
 .settingsGrid {
@@ -319,9 +359,11 @@ button {
   gap: 12px;
 }
 
+
 .emailList {
   grid-template-columns: 1fr;
 }
+
 
 .emailRow {
   align-items: center;
@@ -339,15 +381,18 @@ button {
   transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
+
 .emailRow:hover {
   background: #243653;
   border-color: #3b82f6;
   transform: translateY(-1px);
 }
 
+
 :root[data-theme="light"] .emailRow {
   border-color: #cbd5e1;
 }
+
 
 :root[data-theme="light"] .emailRow:hover {
   background: #dbeafe;
@@ -356,16 +401,19 @@ button {
   color: #111827;
 }
 
+
 :root[data-theme="light"] .emailRow:hover .emailMeta,
 :root[data-theme="light"] .emailRow:hover .emailTime {
   color: #374151;
 }
+
 
 .emailRow.selected {
   background: #1c3158;
   border-color: var(--primary);
   border-left-width: 4px;
 }
+
 
 .backButton {
   align-items: center;
@@ -375,21 +423,24 @@ button {
   color: var(--text-main);
   cursor: pointer;
   display: inline-flex;
-  font-weight: 800;
+  font-weight: 600;
   gap: 8px;
   justify-self: start;
   min-height: 38px;
   padding: 8px 12px;
 }
 
+
 .backButton:hover {
   background: var(--bg-card);
   border-color: var(--primary);
 }
 
+
 .emailSubject {
-  font-weight: 800;
+  font-weight: 600;
 }
+
 
 .emailMeta,
 .emailTime,
@@ -400,6 +451,7 @@ button {
   font-size: 13px;
 }
 
+
 .emailFooter {
   align-items: center;
   display: flex;
@@ -408,45 +460,53 @@ button {
   margin-top: 0;
 }
 
+
 .processingBadge,
 .badge {
   border-radius: 999px;
   display: inline-flex;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.3px;
   padding: 5px 10px;
   white-space: nowrap;
 }
+
 
 .processingNew {
   background: var(--primary);
   color: #ffffff;
 }
 
+
 .processingPending {
   background: var(--warning-bg);
   color: var(--warning);
 }
+
 
 .processingCompleted {
   background: var(--success-bg);
   color: #86efac;
 }
 
+
 :root[data-theme="light"] .processingCompleted {
   color: #166534;
 }
+
 
 .badgeMatch {
   background: var(--success-bg);
   color: #86efac;
 }
 
+
 .badgeMismatch {
   background: var(--danger-bg);
   color: var(--danger);
 }
+
 
 .reviewHeader {
   align-items: flex-start;
@@ -456,22 +516,26 @@ button {
   justify-content: space-between;
 }
 
+
 .twoColumn {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+
 .tableScroller {
   max-width: 100%;
   overflow-x: hidden;
 }
+
 
 table {
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
 }
+
 
 th,
 td {
@@ -483,26 +547,31 @@ td {
   word-break: break-word;
 }
 
+
 th {
   background: var(--bg-muted);
   color: var(--text-main);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
 }
+
 
 tbody tr:hover {
   background: var(--bg-muted);
 }
+
 
 .subtleCell {
   display: block;
   margin-top: 4px;
 }
 
+
 .logList {
   display: grid;
   gap: 10px;
 }
+
 
 .logItem {
   background: var(--bg-row);
@@ -510,6 +579,7 @@ tbody tr:hover {
   border-radius: 8px;
   overflow: hidden;
 }
+
 
 .logSummary {
   align-items: center;
@@ -525,9 +595,11 @@ tbody tr:hover {
   width: 100%;
 }
 
+
 .logSummary:hover {
   background: #243653;
 }
+
 
 .logSummary small {
   color: var(--text-muted);
@@ -536,9 +608,11 @@ tbody tr:hover {
   margin-top: 3px;
 }
 
+
 .decisionText {
-  font-weight: 800;
+  font-weight: 600;
 }
+
 
 .logDropdown {
   background: var(--bg-card);
@@ -548,6 +622,7 @@ tbody tr:hover {
   padding: 12px;
 }
 
+
 .logDropdownHeader {
   align-items: center;
   display: flex;
@@ -555,10 +630,12 @@ tbody tr:hover {
   justify-content: space-between;
 }
 
+
 .matchList {
   display: grid;
   gap: 8px;
 }
+
 
 .matchRow {
   align-items: center;
@@ -571,6 +648,7 @@ tbody tr:hover {
   padding: 10px;
   text-transform: capitalize;
 }
+
 
 pre,
 textarea {
@@ -590,6 +668,7 @@ textarea {
   width: 100%;
 }
 
+
 :root[data-theme="light"] pre,
 :root[data-theme="light"] textarea {
   background: #ffffff;
@@ -597,15 +676,18 @@ textarea {
   color: #111827;
 }
 
+
 :root[data-theme="light"] .panel,
 :root[data-theme="light"] .reviewHeader {
   color: #111827;
 }
 
+
 textarea {
   min-height: 170px;
   resize: vertical;
 }
+
 
 .actionRow {
   align-items: center;
@@ -615,6 +697,7 @@ textarea {
   margin-top: 12px;
 }
 
+
 .primaryAction,
 .dangerAction,
 .iconAction {
@@ -622,26 +705,30 @@ textarea {
   border-radius: 8px;
   cursor: pointer;
   display: inline-flex;
-  font-weight: 800;
+  font-weight: 600;
   gap: 8px;
   justify-content: center;
   min-height: 38px;
   padding: 9px 13px;
 }
 
+
 .primaryAction {
   background: var(--primary);
   color: #ffffff;
 }
 
+
 .primaryAction:hover {
   background: var(--primary-dark);
 }
+
 
 .dangerAction {
   background: var(--danger);
   color: #ffffff;
 }
+
 
 .iconAction {
   background: var(--bg-card);
@@ -651,17 +738,20 @@ textarea {
   padding: 9px;
 }
 
+
 .iconAction:disabled,
 .primaryAction:disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
 
+
 .decisionMessage {
   color: var(--primary);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
 }
+
 
 .errorBanner,
 .successBanner {
@@ -670,11 +760,13 @@ textarea {
   padding: 12px;
 }
 
+
 .errorBanner {
   background: var(--danger-bg);
   border: 1px solid #fecaca;
   color: var(--danger);
 }
+
 
 .successBanner {
   background: var(--success-bg);
@@ -682,9 +774,11 @@ textarea {
   color: #166534;
 }
 
+
 .emptyState {
   color: var(--text-muted);
 }
+
 
 .authPage {
   align-items: center;
@@ -694,6 +788,7 @@ textarea {
   min-height: 100vh;
   padding: 24px;
 }
+
 
 .authPanel {
   background: #ffffff;
@@ -705,24 +800,28 @@ textarea {
   width: 100%;
 }
 
+
 .authPanel h1 {
   color: #1e40af;
   font-size: 28px;
   margin: 4px 0 22px;
 }
 
+
 .authForm {
   display: grid;
   gap: 14px;
 }
 
+
 .authForm label {
   color: #1f2937;
   display: grid;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   gap: 7px;
 }
+
 
 .authForm input {
   border: 1px solid #bfdbfe;
@@ -732,24 +831,28 @@ textarea {
   padding: 10px 12px;
 }
 
+
 .authForm input:focus {
   border-color: #2563eb;
   outline: 2px solid #dbeafe;
 }
+
 
 .authSubmit {
   margin-top: 4px;
   width: 100%;
 }
 
+
 .linkButton {
   background: transparent;
   color: #1d4ed8;
   cursor: pointer;
   display: block;
-  font-weight: 800;
+  font-weight: 600;
   margin: 18px auto 0;
 }
+
 
 .darkModeTile {
   align-items: center;
@@ -759,12 +862,13 @@ textarea {
   color: var(--text-main);
   cursor: pointer;
   display: flex;
-  font-weight: 800;
+  font-weight: 600;
   justify-content: space-between;
   min-height: 46px;
   padding: 12px;
   width: 100%;
 }
+
 
 .darkModeTile.on {
   background: var(--primary);
@@ -772,9 +876,11 @@ textarea {
   color: #ffffff;
 }
 
+
 :root[data-theme="light"] .darkModeTile.on {
   color: #ffffff;
 }
+
 
 .accountDetails {
   display: grid;
@@ -782,24 +888,28 @@ textarea {
   margin: 0;
 }
 
+
 .accountDetails div,
 .detailList div {
   display: grid;
   gap: 4px;
 }
 
+
 .accountDetails dt,
 .detailList dt {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
 }
+
 
 .accountDetails dd,
 .detailList dd {
   margin: 0;
 }
+
 
 .detailList {
   display: grid;
@@ -807,11 +917,13 @@ textarea {
   margin: 14px 0 0;
 }
 
+
 .attachmentList {
   display: grid;
   gap: 10px;
   margin-top: 12px;
 }
+
 
 .attachmentItem {
   align-items: center;
@@ -827,9 +939,11 @@ textarea {
   text-align: left;
 }
 
+
 .attachmentItem:hover {
   border-color: var(--primary);
 }
+
 
 .attachmentItem small {
   color: var(--text-muted);
@@ -837,11 +951,13 @@ textarea {
   margin-top: 4px;
 }
 
+
 .attachmentActions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+
 
 .attachmentActions button {
   align-items: center;
@@ -851,22 +967,25 @@ textarea {
   color: var(--text-main);
   cursor: pointer;
   display: inline-flex;
-  font-weight: 800;
+  font-weight: 600;
   gap: 6px;
   min-height: 34px;
   padding: 7px 10px;
 }
 
+
 .attachmentActions button:hover {
   border-color: var(--primary);
 }
 
+
 .errorText {
   color: var(--danger);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   margin-top: 10px;
 }
+
 
 .documentModal {
   align-items: center;
@@ -874,29 +993,35 @@ textarea {
   display: flex;
   inset: 0;
   justify-content: center;
-  padding: 24px;
+  padding: 10px;
   position: fixed;
   z-index: 20;
 }
 
+
 .documentModalPanel {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  display: grid;
-  gap: 12px;
-  height: min(88vh, 900px);
-  max-width: 1100px;
-  padding: 14px;
-  width: min(90vw, 1100px);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 96vw;
+  height: 95vh;
+  max-width: 1600px;
+  padding: 12px;
+  overflow: hidden;
 }
 
+
 .documentModalHeader {
-  align-items: center;
   display: flex;
-  gap: 12px;
+  align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
+
 
 .documentModalHeader h2 {
   font-size: 16px;
@@ -905,20 +1030,24 @@ textarea {
   white-space: nowrap;
 }
 
+
 .documentFrame,
 .documentImage,
 .documentFallback {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   background: var(--bg-muted);
   border: 1px solid var(--border);
   border-radius: 8px;
-  height: 100%;
-  min-height: 0;
-  width: 100%;
 }
+
 
 .documentImage {
   object-fit: contain;
 }
+
 
 .documentFallback {
   align-items: center;
@@ -928,9 +1057,11 @@ textarea {
   padding: 24px;
 }
 
+
 .spin {
   animation: spin 0.8s linear infinite;
 }
+
 
 @keyframes spin {
   from {
@@ -941,10 +1072,12 @@ textarea {
   }
 }
 
+
 @media (max-width: 960px) {
   .appShell {
     grid-template-columns: 1fr;
   }
+
 
   .sidebar {
     height: auto;
@@ -953,17 +1086,21 @@ textarea {
     width: auto;
   }
 
+
   .contentShell {
     margin-left: 0;
   }
+
 
   .navList {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+
   .twoColumn {
     grid-template-columns: 1fr;
   }
+
 
   .emailRow,
   .logSummary,
@@ -971,10 +1108,12 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+
   .attachmentItem {
     align-items: flex-start;
     display: grid;
   }
+
 
   .inboxPanel {
     height: auto;
@@ -982,16 +1121,22 @@ textarea {
   }
 }
 
+
 @media (max-width: 640px) {
   .pageContent {
     padding: 10px;
   }
 
+
   .profileName {
     display: none;
   }
+
 
   .navItem {
     justify-content: center;
   }
 }
+
+
+
