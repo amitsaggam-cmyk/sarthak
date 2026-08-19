@@ -936,6 +936,25 @@ tbody tr:hover {
   align-items: center;
   display: flex;
   gap: 8px;
+  max-width: min(52vw, 520px);
+}
+
+.uploadAction {
+  max-width: 360px;
+  min-width: 0;
+}
+
+.uploadAction span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeAction {
+  flex: 0 0 auto;
+  min-height: 38px;
+  min-width: 38px;
+  padding: 8px;
 }
 
 .visuallyHidden {
@@ -1204,6 +1223,24 @@ tbody tr:hover {
   text-decoration: underline;
 }
 
+.documentCountValue {
+  margin-right: 10px;
+}
+
+.documentActionGroup {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  vertical-align: middle;
+}
+
+.compactAction {
+  min-height: 32px;
+  padding: 6px 9px;
+  white-space: nowrap;
+}
+
 .editExtractionOverlay {
   z-index: 40;
 }
@@ -1216,6 +1253,36 @@ tbody tr:hover {
 .reanalysisDialog {
   max-width: 520px;
   width: min(520px, 96vw);
+}
+
+.reanalysisLoadingState {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  min-height: 540px;
+  padding: 32px;
+  text-align: center;
+}
+
+.reanalysisLoadingState strong {
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.reanalysisLoadingState span {
+  max-width: 420px;
+}
+
+.reanalysisSpinner {
+  animation: reanalysisSpin 1s linear infinite;
+  color: var(--primary);
+}
+
+@keyframes reanalysisSpin {
+  to { transform: rotate(360deg); }
 }
 
 .editFieldRow {
@@ -3248,6 +3315,17 @@ textarea {
   .modalHeaderActions {
     align-items: flex-end;
     flex-direction: column;
+    max-width: 100%;
+  }
+
+  .uploadAction {
+    max-width: min(76vw, 320px);
+  }
+
+  .documentActionGroup {
+    align-items: flex-start;
+    display: flex;
+    margin-top: 7px;
   }
 
   .editFieldRow label:last-child {

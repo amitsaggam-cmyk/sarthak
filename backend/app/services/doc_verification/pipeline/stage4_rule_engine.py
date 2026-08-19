@@ -1,12 +1,18 @@
 import re
 from datetime import datetime
 from typing import Any
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
+from difflib import SequenceMatcher
+
+try:
+    from sentence_transformers import SentenceTransformer
+    from sklearn.metrics.pairwise import cosine_similarity
+except ImportError:  # Optional enhancement; exact/fuzzy matching keeps the pipeline available.
+    SentenceTransformer = None
+    cosine_similarity = None
 
 
-# Initialize model globally once at startup
-EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+# Initialize the embedding model only when the optional semantic dependencies exist.
+EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2") if SentenceTransformer else None
 
 
 
@@ -15,10 +21,17 @@ def _semantic_match(target: str, references: list[str], threshold: float) -> boo
     """Helper function to calculate vector similarity between target text and reference list."""
     if not target or not references:
         return False
-    target_vec = EMBED_MODEL.encode([target])
-    ref_vecs = EMBED_MODEL.encode(references)
-    similarities = cosine_similarity(target_vec, ref_vecs)[0]
-    return float(max(similarities)) >= threshold
+    if EMBED_MODEL is not None and cosine_similarity is not None:
+        target_vec = EMBED_MODEL.encode([target])
+        ref_vecs = EMBED_MODEL.encode(references)
+        similarities = cosine_similarity(target_vec, ref_vecs)[0]
+        return float(max(similarities)) >= threshold
+
+    normalized_target = _normalize_text(target)
+    return any(
+        SequenceMatcher(None, normalized_target, _normalize_text(reference)).ratio() >= threshold
+        for reference in references
+    )
 
 
 
@@ -541,6 +554,5 @@ def evaluate_dossier(
         "pending_documents": pending_documents,
         "dossier_status": "INCOMPLETE" if missing_docs or issues else "COMPLETE",
     }
-
 
 

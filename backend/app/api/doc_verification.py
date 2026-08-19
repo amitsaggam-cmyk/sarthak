@@ -261,9 +261,9 @@ async def reanalyse_submission_document(
                 expected_revision,
             )
             message = (
-                f"{filename} already exists in this submission. Do you want to replace the existing document?"
+                f"{filename} already exists in this submission. Do you want to replace it and run the full LLM analysis again?"
                 if action == "replace"
-                else f"{filename} is a new document. Do you want to add it to this submission?"
+                else f"{filename} was not found in this submission. Do you want to add it and run the full LLM analysis again?"
             )
             return DocumentReanalysisResponse(
                 action=action,
