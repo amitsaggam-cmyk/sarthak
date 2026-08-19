@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  db:
+    image: postgres:15-alpine
+    container_name: hr_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: hr_user
+      POSTGRES_PASSWORD: hr_password
+      POSTGRES_DB: hr_automation
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Unified FastAPI + React Service (No Nginx)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hr_automation_app
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      # Updated to use Postgres + asyncpg
+      DATABASE_URL: postgresql+asyncpg://hr_user:hr_password@db:5432/hr_automation
+      
+      # Frontend/Backend Configs
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
+      EMAIL_SOURCE: database
+      ENABLE_BACKGROUND_INGESTION: "true"
+      ENABLE_BACKGROUND_PROCESSING: "true"
+      GMAIL_ATTACHMENT_DIR: "/app/backend/data/email_attachments"
+      DOC_VERIFICATION_UPLOAD_DIR: "/app/backend/data/doc_verification_uploads"
+    volumes:
+      - backend_email_attachments:/app/backend/data/email_attachments
+      - backend_doc_uploads:/app/backend/data/doc_verification_uploads
+
+volumes:
+  postgres_data:
+  backend_email_attachments:
+  backend_doc_uploads:

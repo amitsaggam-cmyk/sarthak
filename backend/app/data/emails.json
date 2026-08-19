@@ -1,0 +1,126 @@
+[
+  {
+    "id": 1,
+    "sender": "verification.vendor@example.com",
+    "subject": "TEST PASS - Background verification request for Aarav Sharma",
+    "body": "Hello HR Team,\n\nPlease verify the employment details below.\n\nEmployee ID: EMP-1001\nEmployee Name: Aarav Sharma\nDate of Joining: 2021-04-12\nLast Working Day: 2025-06-30\n\nRegards,\nVerification Team",
+    "status": "completed",
+    "decision": "approve_reply",
+    "processing_status": "completed",
+    "received_at": "2026-07-04T09:00:00"
+  },
+  {
+    "id": 2,
+    "sender": "checks@example.com",
+    "subject": "TEST FAIL - One day mismatch for Maya Iyer",
+    "body": "Dear HR,\n\nKindly confirm these submitted details.\n\nEmployee ID: EMP-1002\nEmployee Name: Maya Iyer\nDate of Joining: 20/01/2020\nLast Working Day: 16/12/2024\n\nThanks",
+    "status": "pending",
+    "processing_status": "pending",
+    "received_at": "2026-07-04T09:05:00"
+  },
+  {
+    "id": 3,
+    "sender": "screening.partner@example.com",
+    "subject": "TEST FLAG - Unknown employee verification",
+    "body": "Hello,\n\nPlease verify this candidate's employment information.\n\nEmployee ID: EMP-9999\nEmployee Name: Rohan Mehta\nDate of Joining: 2022-03-01\nLast Working Day: 2025-01-31\n\nRegards,\nScreening Partner",
+    "status": "pending",
+    "processing_status": "new",
+    "received_at": "2026-07-04T09:10:00"
+  },
+  {
+    "id": 4,
+    "sender": "background.checks@example.com",
+    "subject": "Employment Verification Request",
+    "body": "Hello,\n\nPlease verify the following employee details.\n\nEmployee ID: EMP-1001\nEmployee Name: Priya Sharma\nDate of Joining: 2021-06-15\nLast Working Day: 2024-12-20\n\nRegards,\nBackground Verification Team",
+    "status": "new",
+    "processing_status": "new",
+    "received_at": "2026-07-04T09:45:00"
+  },
+  {
+    "id": 5,
+    "sender": "hr.verification@example.com",
+    "subject": "Candidate Employment Check",
+    "body": "Dear Team,\n\nKindly confirm the employment details below.\n\nEmployee ID: EMP-1002\nEmployee Name: Amit Verma\nDate of Joining: 2020-09-10\nLast Working Day: 2025-05-15\n\nThanks,\nHR Verification",
+    "status": "pending",
+    "processing_status": "new",
+    "received_at": "2026-07-04T10:05:00"
+  },
+  {
+    "id": 6,
+    "sender": "screening.partner@example.com",
+    "subject": "TEST FLAG - Employee Verification",
+    "body": "Hello,\n\nPlease verify this candidate's employment information.\n\nEmployee ID: EMP-1003\nEmployee Name: Sneha Kulkarni\nDate of Joining: 2023-01-09\nLast Working Day: 2026-02-28\n\nRegards,\nScreening Partner",
+    "status": "pending",
+    "processing_status": "new",
+    "received_at": "2026-07-04T10:30:00"
+  },
+  {
+    "id": 7,
+    "sender": "verification.services@example.com",
+    "subject": "Employment History Confirmation",
+    "body": "Hi,\n\nPlease validate the employment record below.\n\nEmployee ID: EMP-1004\nEmployee Name: Arjun Nair\nDate of Joining: 2019-11-18\nLast Working Day: 2025-06-30\n\nRegards,\nVerification Services",
+    "status": "new",
+    "processing_status": "new",
+    "received_at": "2026-07-04T11:00:00"
+  },
+  {
+    "id": 8,
+    "sender": "background.checks@example.com",
+    "subject": "Employment Verification Required",
+    "body": "Hello,\n\nPlease verify the employment information for the following candidate.\n\nEmployee ID: EMP-1005\nEmployee Name: Neha Gupta\nDate of Joining: 2022-08-22\nLast Working Day: 2026-01-10\n\nRegards,\nBackground Checks Team",
+    "status": "completed",
+    "decision": "approve_reply",
+    "processing_status": "new",
+    "received_at": "2026-07-04T11:20:00"
+  },
+  {
+    "id": 9,
+    "sender": "screening.partner@example.com",
+    "subject": "TEST FLAG - Unknown employee verification",
+    "body": "Hello,\n\nPlease verify this candidate's employment information.\n\nEmployee ID: EMP-8888\nEmployee Name: Karan Singh\nDate of Joining: 2021-04-12\nLast Working Day: 2025-09-30\n\nRegards,\nScreening Partner",
+    "status": "completed",
+    "decision": "reject_reply",
+    "processing_status": "new",
+    "received_at": "2026-07-04T11:45:00"
+  },
+  {
+    "id": 10,
+    "sender": "employment.verify@example.com",
+    "subject": "Candidate Verification Request",
+    "body": "Dear HR,\n\nKindly verify the employment information below.\n\nEmployee ID: EMP-1006\nEmployee Name: Aisha Khan\nDate of Joining: 2020-02-03\nLast Working Day: 2024-11-29\n\nRegards,\nEmployment Verification Team",
+    "status": "completed",
+    "decision": "approve_reply",
+    "processing_status": "completed",
+    "received_at": "2026-07-04T12:10:00"
+  },
+  {
+    "id": 11,
+    "sender": "hr.audit@example.com",
+    "subject": "Employee Verification Inquiry",
+    "body": "Hello,\n\nPlease confirm the employment details for the following individual.\n\nEmployee ID: EMP-1007\nEmployee Name: Vivek Rao\nDate of Joining: 2018-07-16\nLast Working Day: 2025-03-31\n\nRegards,\nHR Audit Team",
+    "status": "completed",
+    "decision": "reject_reply",
+    "processing_status": "completed",
+    "received_at": "2026-07-04T12:35:00"
+  },
+  {
+    "id": 12,
+    "sender": "screening.partner@example.com",
+    "subject": "TEST FLAG - Unknown employee verification",
+    "body": "Hello,\n\nPlease verify this candidate's employment information.\n\nEmployee ID: EMP-7777\nEmployee Name: Pooja Desai\nDate of Joining: 2024-01-15\nLast Working Day: 2026-06-15\n\nRegards,\nScreening Partner",
+    "status": "completed",
+    "decision": "approve_reply",
+    "processing_status": "completed",
+    "received_at": "2026-07-04T13:00:00"
+  },
+  {
+    "id": 13,
+    "sender": "background.checks@example.com",
+    "subject": "Employment Verification Request",
+    "body": "Dear Team,\n\nPlease verify the following employee details.\n\nEmployee ID: EMP-1008\nEmployee Name: Rahul Joshi\nDate of Joining: 2019-05-20\nLast Working Day: 2025-12-31\n\nRegards,\nBackground Verification Team",
+    "status": "completed",
+    "decision": "reject_reply",
+    "processing_status": "completed",
+    "received_at": "2026-07-04T13:25:00"
+  }
+]
