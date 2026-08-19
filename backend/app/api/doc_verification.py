@@ -16,6 +16,7 @@ from app.models.schemas import (
     DocumentVerificationSubmitResponse,
     DocumentVerificationManualChangesRequest,
     CandidateSummaryResponse,
+    DocumentReanalysisResponse,
 )
 from app.services.doc_verification.repository import DocumentVerificationRepository
 from app.services.doc_verification.service import (
@@ -188,6 +189,7 @@ async def confirm_manual_changes(
         applied = await service.apply_manual_changes(
             submission_id,
             [change.model_dump() for change in request.changes],
+            request.expected_revision,
         )
         if not applied:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found.")
@@ -195,6 +197,9 @@ async def confirm_manual_changes(
     except ValueError as exc:
         await session.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         await session.rollback()
         raise HTTPException(
@@ -232,6 +237,75 @@ async def get_candidate_summary(
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found.")
     return summary
+
+
+@router.post(
+    "/submissions/{submission_id}/reanalyse",
+    response_model=DocumentReanalysisResponse,
+)
+async def reanalyse_submission_document(
+    submission_id: int,
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    expected_revision: int = Form(..., ge=1),
+    confirm: bool = Form(False),
+    current_user: User = Depends(require_module_write_access("document_verification")),
+    session: AsyncSession = Depends(get_session),
+) -> DocumentReanalysisResponse:
+    service = _service(session)
+    try:
+        if not confirm:
+            action, filename, revision = await service.inspect_reanalysis_upload(
+                submission_id,
+                file.filename,
+                expected_revision,
+            )
+            message = (
+                f"{filename} already exists in this submission. Do you want to replace the existing document?"
+                if action == "replace"
+                else f"{filename} is a new document. Do you want to add it to this submission?"
+            )
+            return DocumentReanalysisResponse(
+                action=action,
+                message=message,
+                filename=filename,
+                revision=revision,
+            )
+
+        action, filename, revision = await service.queue_reanalysis(
+            submission_id,
+            file,
+            expected_revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except SQLAlchemyError as exc:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable while queueing document reanalysis.",
+        ) from exc
+
+    background_tasks.add_task(process_document_verification_submission, submission_id)
+    logger.info(
+        "[DOC_VERIFY] Reanalysis confirmed user=%s submission_id=%s action=%s revision=%s",
+        current_user.email,
+        submission_id,
+        action,
+        revision,
+    )
+    return DocumentReanalysisResponse(
+        action=action,
+        message="Document saved. Reanalysis has started.",
+        filename=filename,
+        revision=revision,
+    )
 
 
 @router.get("/files/{file_id}/download")

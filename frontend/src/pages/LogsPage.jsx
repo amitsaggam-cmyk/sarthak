@@ -14,16 +14,20 @@ import {
 import { logsApi } from "../api";
 import ProfileDropdown from "../components/ProfileDropdown";
 
+
 const MODULE_OPTIONS = ["All Modules", "DOC_VERIFICATION", "EMAIL_BGV", "USER_MGMT"];
 const ITEMS_PER_PAGE = 8;
 
+
 function formatUtcDateTime(value) {
   if (!value) return "Not available";
+
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return "Invalid date";
   }
+
 
   return new Intl.DateTimeFormat("en-IN", {
     dateStyle: "medium",
@@ -32,17 +36,20 @@ function formatUtcDateTime(value) {
   }).format(date);
 }
 
+
 function statusClass(status) {
   if (status === "SUCCESS") return "badge badgeMatch";
   if (status === "FAILED") return "badge badgeMismatch";
   return "workflowBadge workflowPending";
 }
 
+
 function maskSensitiveText(value) {
   return String(value)
     .replace(/\b[A-Z]{5}\d{4}[A-Z]\b/g, "[Redacted]")
     .replace(/\b(?:\d[ -]?){12}\b/g, "[Redacted]");
 }
+
 
 function DetailField({ label, value }) {
   return (
@@ -53,10 +60,12 @@ function DetailField({ label, value }) {
   );
 }
 
+
 function TraceField({ traceId }) {
   async function copyTraceId() {
     await navigator.clipboard?.writeText(traceId);
   }
+
 
   return (
     <button className="auditTraceCopy" onClick={copyTraceId} type="button" title="Copy Trace ID">
@@ -66,9 +75,11 @@ function TraceField({ traceId }) {
   );
 }
 
+
 function DocVerificationDetails({ details }) {
   const files = Array.isArray(details.files) ? details.files : [];
   const flags = Array.isArray(details.flags) ? details.flags : [];
+
 
   return (
     <div className="auditDetailGrid">
@@ -114,8 +125,10 @@ function DocVerificationDetails({ details }) {
   );
 }
 
+
 function EmailBgvDetails({ details }) {
   const discrepancies = Array.isArray(details.discrepancies) ? details.discrepancies : [];
+
 
   return (
     <div className="auditDetailGrid">
@@ -172,6 +185,7 @@ function EmailBgvDetails({ details }) {
   );
 }
 
+
 function UserMgmtDetails({ details }) {
   return (
     <div className="auditDetailGrid">
@@ -200,11 +214,13 @@ function UserMgmtDetails({ details }) {
   );
 }
 
+
 function AuditDetails({ log }) {
   if (log.module === "DOC_VERIFICATION") return <DocVerificationDetails details={log.details} />;
   if (log.module === "EMAIL_BGV") return <EmailBgvDetails details={log.details} />;
   return <UserMgmtDetails details={log.details} />;
 }
+
 
 function normalizeAuditLog(log) {
   return {
@@ -220,6 +236,7 @@ function normalizeAuditLog(log) {
   };
 }
 
+
 export default function LogsPage({ account, onLogout, refreshSignal, onLoadingChange, onError }) {
   const [logs, setLogs] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -228,9 +245,11 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
   const [expandedLogIds, setExpandedLogIds] = useState(() => new Set());
   const [page, setPage] = useState(1);
 
+
   async function loadLogs() {
     onLoadingChange?.(true);
     onError?.("");
+
 
     try {
       const data = await logsApi.list();
@@ -243,13 +262,16 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
     }
   }
 
+
   useEffect(() => {
     loadLogs();
   }, [refreshSignal]);
 
+
   useEffect(() => {
     setPage(1);
   }, [searchText, moduleFilter]);
+
 
   const filteredLogs = useMemo(() => {
     const query = searchText.trim().toLowerCase();
@@ -264,14 +286,17 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
     });
   }, [logs, moduleFilter, searchText]);
 
+
   const totalPages = Math.ceil(filteredLogs.length / ITEMS_PER_PAGE) || 1;
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredLogs.length);
   const paginatedLogs = filteredLogs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
 
   function toggleRow(logId) {
     setExpandedLogIds((current) => {
@@ -285,6 +310,7 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
     });
   }
 
+
   return (
     <section className="contentPage">
       <div className="pageTitleRow">
@@ -294,6 +320,7 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
         </div>
         <ProfileDropdown account={account} onLogout={onLogout} />
       </div>
+
 
       <section className="panel auditControlBar" aria-label="Audit log controls">
         <label className="auditSearchField">
@@ -314,6 +341,7 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
           </select>
         </label>
       </section>
+
 
       <section className="panel">
         <div className="panelHeader auditTableHeader">
@@ -371,7 +399,7 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
         {filteredLogs.length > 0 && (
           <div className="paginationRow">
             <span className="paginationInfo">
-              Showing {startIndex + 1}–{endIndex} of {filteredLogs.length}
+              Showing {startIndex + 1} – {endIndex} of {filteredLogs.length}
             </span>
             <div className="paginationButtons">
               <button
@@ -401,3 +429,8 @@ export default function LogsPage({ account, onLogout, refreshSignal, onLoadingCh
     </section>
   );
 }
+
+
+
+
+

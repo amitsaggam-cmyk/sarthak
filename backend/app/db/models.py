@@ -111,6 +111,7 @@ class DocumentVerificationSubmission(Base):
     extracted_documents_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     submitted_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     processing_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,

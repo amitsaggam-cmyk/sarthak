@@ -1,6 +1,26 @@
 import re
 from datetime import datetime
 from typing import Any
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+# Initialize model globally once at startup
+EMBED_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+
+
+
+
+def _semantic_match(target: str, references: list[str], threshold: float) -> bool:
+    """Helper function to calculate vector similarity between target text and reference list."""
+    if not target or not references:
+        return False
+    target_vec = EMBED_MODEL.encode([target])
+    ref_vecs = EMBED_MODEL.encode(references)
+    similarities = cosine_similarity(target_vec, ref_vecs)[0]
+    return float(max(similarities)) >= threshold
+
+
 
 
 MANDATORY_DOC_TYPES = {
@@ -15,17 +35,24 @@ MANDATORY_DOC_TYPES = {
 }
 
 
+
+
 def _normalize_text(text: str | None) -> str:
+    """Lowercases, removes punctuation, and standardizes word order for exact matching."""
     if not text:
         return ""
     cleaned = re.sub(r"[^a-z0-9\s]", "", str(text).lower())
     return " ".join(sorted(word for word in cleaned.split() if word))
 
 
+
+
 def _normalize_exact(value: str | None) -> str:
     if not value:
         return ""
     return re.sub(r"\s+", "", str(value)).upper()
+
+
 
 
 def _parse_iso_date(value: Any) -> datetime | None:
@@ -39,12 +66,16 @@ def _parse_iso_date(value: Any) -> datetime | None:
         return None
 
 
+
+
 def _calculate_days_between(date_str_1: str | None, date_str_2: str | None) -> int:
     first = _parse_iso_date(date_str_1)
     second = _parse_iso_date(date_str_2)
     if not first or not second:
         return -9999
     return abs((first - second).days)
+
+
 
 
 def _get_all_instances(dossier: dict[str, Any], doc_type: str) -> list[dict[str, Any]]:
@@ -55,6 +86,8 @@ def _get_all_instances(dossier: dict[str, Any], doc_type: str) -> list[dict[str,
     return [entry.get("extracted_data", {}) for entry in entries if isinstance(entry, dict)]
 
 
+
+
 def _get_all_documents(dossier: dict[str, Any], doc_type: str) -> list[dict[str, Any]]:
     doc = dossier.get(doc_type)
     if doc is None:
@@ -63,9 +96,13 @@ def _get_all_documents(dossier: dict[str, Any], doc_type: str) -> list[dict[str,
     return [entry for entry in entries if isinstance(entry, dict)]
 
 
+
+
 def _unwrap_doc(dossier: dict[str, Any], doc_type: str) -> dict[str, Any]:
     instances = _get_all_instances(dossier, doc_type)
     return instances[0] if instances else {}
+
+
 
 
 FIELD_SOURCES: dict[str, list[tuple[str, str]]] = {
@@ -86,6 +123,7 @@ FIELD_SOURCES: dict[str, list[tuple[str, str]]] = {
     "aadhaar_number": [("AADHAAR_CARD", "aadhaar_number"), ("PF_FORM_11", "aadhaar_number")],
 }
 
+
 FIELD_NORMALIZERS = {
     "name": _normalize_text,
     "dob": _normalize_exact,
@@ -96,12 +134,15 @@ FIELD_NORMALIZERS = {
     "aadhaar_number": _normalize_exact,
 }
 
+
 COMPANY_MENTION_SOURCES = [
     ("OFFER_LETTER_PREVIOUS_ORG", "company_name"),
     ("PAYSLIP", "company_name"),
     ("RESIGNATION_ACCEPTANCE", "company_name"),
     ("RELIEVING_LETTER", "company_name"),
 ]
+
+
 
 
 def _collect_field_values(
@@ -119,12 +160,15 @@ def _collect_field_values(
     return collected
 
 
+
+
 def _check_field_consistency(dossier: dict[str, Any], field_key: str, issues: list[str]) -> None:
     sources = FIELD_SOURCES.get(field_key, [])
     normalize_fn = FIELD_NORMALIZERS.get(field_key, _normalize_text)
     collected = _collect_field_values(dossier, sources)
     if len(collected) < 2:
         return
+
 
     seen_pairs = set()
     field_display = field_key.replace("_", " ").upper()
@@ -146,6 +190,8 @@ def _check_field_consistency(dossier: dict[str, Any], field_key: str, issues: li
             )
 
 
+
+
 def _mark_name_status(document: dict[str, Any], field_name: str, status: str, message: str) -> None:
     field_statuses = document.setdefault("field_statuses", {})
     field_statuses[field_name] = {
@@ -153,6 +199,8 @@ def _mark_name_status(document: dict[str, Any], field_name: str, status: str, me
         "label": "Match" if status == "match" else "Mismatch",
         "message": message,
     }
+
+
 
 
 def _candidate_name_field(extracted: dict[str, Any]) -> str | None:
@@ -163,27 +211,41 @@ def _candidate_name_field(extracted: dict[str, Any]) -> str | None:
     return None
 
 
+
+
 def _check_name_consistency(dossier: dict[str, Any], issues: list[str]) -> None:
     pan_docs = _get_all_documents(dossier, "PAN_CARD")
     aadhaar_docs = _get_all_documents(dossier, "AADHAAR_CARD")
     pan_doc = pan_docs[0] if pan_docs else None
     aadhaar_doc = aadhaar_docs[0] if aadhaar_docs else None
+   
     pan_name = (pan_doc or {}).get("extracted_data", {}).get("name")
     aadhaar_name = (aadhaar_doc or {}).get("extracted_data", {}).get("name")
+   
+    # Normalizing down to small letters and standardizing words
     normalized_pan = _normalize_text(str(pan_name)) if pan_name else ""
     normalized_aadhaar = _normalize_text(str(aadhaar_name)) if aadhaar_name else ""
 
-    source_names_match = bool(normalized_pan and normalized_aadhaar and normalized_pan == normalized_aadhaar)
+
+    # Strict Exact Match required for PAN vs Aadhaar
+    source_names_match = bool(
+        normalized_pan
+        and normalized_aadhaar
+        and normalized_pan == normalized_aadhaar
+    )
+   
     canonical_name = str(aadhaar_name or pan_name or "").strip()
     canonical_normalized = normalized_aadhaar or normalized_pan
+
 
     if not source_names_match:
         if normalized_pan and normalized_aadhaar:
             issues.append(
-                f"NAME Mismatch: PAN_CARD ('{pan_name}') does not match AADHAAR_CARD ('{aadhaar_name}')."
+                f"NAME Mismatch: PAN_CARD ('{pan_name}') does not exactly match AADHAAR_CARD ('{aadhaar_name}')."
             )
         else:
             issues.append("NAME Mismatch: Candidate name could not be verified from both PAN Card and Aadhaar Card.")
+
 
     for doc_type, document_or_documents in dossier.items():
         documents = document_or_documents if isinstance(document_or_documents, list) else [document_or_documents]
@@ -197,8 +259,10 @@ def _check_name_consistency(dossier: dict[str, Any], issues: list[str]) -> None:
             if not field_name:
                 continue
 
+
             label = doc_type if index == 0 else f"{doc_type}#{index + 1}"
             raw_name = str(extracted.get(field_name) or "").strip()
+
 
             if not source_names_match:
                 _mark_name_status(
@@ -209,7 +273,15 @@ def _check_name_consistency(dossier: dict[str, Any], issues: list[str]) -> None:
                 )
                 continue
 
-            if _normalize_text(raw_name) == canonical_normalized:
+
+            # Semantic match for other documents against the canonical PAN/Aadhaar name
+            is_name_match = (
+                _normalize_text(raw_name) == canonical_normalized
+                or _semantic_match(raw_name, [canonical_name], 0.85)
+            )
+
+
+            if is_name_match:
                 _mark_name_status(
                     document,
                     field_name,
@@ -229,35 +301,58 @@ def _check_name_consistency(dossier: dict[str, Any], issues: list[str]) -> None:
                 )
 
 
-def _check_employer_consistency(dossier: dict[str, Any], issues: list[str]) -> None:
-    resume_instances = _get_all_instances(dossier, "RESUME")
-    resume_employers = [
-        _normalize_text(employer)
-        for resume in resume_instances
-        for employer in (resume.get("employers") or [])
-        if employer
-    ]
-    if not resume_employers:
-        return
 
+
+def _check_employer_consistency(dossier: dict[str, Any], issues: list[str]) -> None:
+    # UAN and RELIEVING LETTER are now the combined source of truth for employers
+    master_employers = []
+   
     for uan_data in _get_all_instances(dossier, "UAN_SCREENSHOT"):
         for entry in uan_data.get("employment_history") or []:
-            company = _normalize_text(entry.get("company_name", ""))
-            if company and not any(company in employer for employer in resume_employers):
+            company = str(entry.get("company_name", "")).strip()
+            if company:
+                master_employers.append(company)
+               
+    for rel_data in _get_all_instances(dossier, "RELIEVING_LETTER"):
+        company = str(rel_data.get("company_name", "")).strip()
+        if company:
+            master_employers.append(company)
+
+
+    if not master_employers:
+        return
+
+
+    # Semantic search helper function targeting the combined master list
+    def is_in_master(target_company: str) -> bool:
+        return _semantic_match(target_company, master_employers, threshold=0.70)
+
+
+    # 1. Check if Resume Employers match the master list
+    resume_instances = _get_all_instances(dossier, "RESUME")
+    for index, resume in enumerate(resume_instances):
+        for employer in (resume.get("employers") or []):
+            emp_str = str(employer).strip()
+            if emp_str and not is_in_master(emp_str):
+                label = "RESUME" if index == 0 else f"RESUME#{index + 1}"
                 issues.append(
-                    f"Resume Validation: Employer '{entry.get('company_name')}' found in UAN "
-                    "but missing from Resume."
+                    f"Employer Validation: Employer '{emp_str}' from {label} "
+                    "not found in verified employment history (UAN / Relieving Letter)."
                 )
 
+
+    # 2. Check if other documents match the master list
     for doc_type, field_name in COMPANY_MENTION_SOURCES:
         for index, data in enumerate(_get_all_instances(dossier, doc_type)):
-            company = _normalize_text(data.get(field_name, ""))
-            if company and not any(company in employer for employer in resume_employers):
+            company = str(data.get(field_name, "")).strip()
+            if company and not is_in_master(company):
                 label = doc_type if index == 0 else f"{doc_type}#{index + 1}"
                 issues.append(
-                    f"Resume Validation: Employer '{data.get(field_name)}' from {label} "
-                    "not found in Resume's employer list."
+                    f"Employer Validation: Employer '{company}' from {label} "
+                    "not found in verified employment history (UAN / Relieving Letter)."
                 )
+
+
 
 
 def evaluate_dossier(
@@ -269,11 +364,13 @@ def evaluate_dossier(
     pending_documents: list[str] = []
     uploaded_types = set(dossier.keys())
 
+
     missing_docs = MANDATORY_DOC_TYPES - uploaded_types
     if not ({"MARKSHEET", "DEGREE_CERTIFICATE"} & uploaded_types):
         missing_docs.add("MARKSHEET_OR_DEGREE_CERTIFICATE")
     if missing_docs:
         issues.append(f"Missing mandatory documents: {', '.join(sorted(missing_docs))}")
+
 
     _check_name_consistency(dossier, issues)
     for field_key in FIELD_SOURCES:
@@ -282,21 +379,25 @@ def evaluate_dossier(
         _check_field_consistency(dossier, field_key, issues)
     _check_employer_consistency(dossier, issues)
 
+
     aadhaar = _unwrap_doc(dossier, "AADHAAR_CARD")
     if aadhaar:
         digits_only = re.sub(r"\D", "", str(aadhaar.get("aadhaar_number", "")))
         if digits_only and len(digits_only) != 12:
             issues.append(f"Invalid Aadhaar format: Must be exactly 12 digits, found {len(digits_only)}.")
 
+
     pf_form = _unwrap_doc(dossier, "PF_FORM_11")
     if pf_form and pf_form.get("is_signed") is False:
         issues.append("PF Form 11 appears unsigned.")
+
 
     self_dec = _unwrap_doc(dossier, "SELF_DECLARATION_FORM")
     if self_dec and self_dec.get("is_signed") is False:
         issues.append("Self Declaration Form appears unsigned.")
     if self_dec and self_dec.get("is_handwritten") is False:
         issues.append("Self Declaration Form must be manually handwritten, not digitally filled.")
+
 
     photo = _unwrap_doc(dossier, "PASSPORT_PHOTO")
     if photo:
@@ -305,9 +406,11 @@ def evaluate_dossier(
         if photo.get("is_professional_photo") is False:
             issues.append("Passport photo must be a professional candidate photograph.")
 
+
     jade_offer = _unwrap_doc(dossier, "SIGNED_OFFER_LETTER_JADE")
     if jade_offer and (not jade_offer.get("grade") or not jade_offer.get("location")):
         issues.append("Jade Offer Letter missing Grade or Location details.")
+
 
     resume = (_get_all_instances(dossier, "RESUME") or [{}])[0]
     resume_employers = resume.get("employers", [])
@@ -319,6 +422,7 @@ def evaluate_dossier(
     passing_year = marksheet.get("passing_year")
     date_of_joining = _parse_iso_date(self_dec.get("doj"))
 
+
     is_fresher = False
     if not resume_employers and not has_experience_docs:
         is_fresher = True
@@ -326,6 +430,7 @@ def evaluate_dossier(
         is_fresher = True
     elif candidate_profile.get("is_fresher") is True:
         is_fresher = True
+
 
     if pf_form:
         if pf_form.get("is_handwritten") is False:
@@ -343,14 +448,17 @@ def evaluate_dossier(
                 "PF Form 11 completeness could not be verified because filled point count was not extracted."
             )
 
+
     resignation = _unwrap_doc(dossier, "RESIGNATION_ACCEPTANCE")
     relieving = _unwrap_doc(dossier, "RELIEVING_LETTER")
     self_dec_doj = self_dec.get("doj")
     lwd_date = resignation.get("last_working_day") or relieving.get("last_working_day")
 
+
     if not is_fresher:
         if "OFFER_LETTER_PREVIOUS_ORG" not in uploaded_types:
             issues.append("Previous Organization Offer Letter is missing.")
+
 
         all_payslip_months = {
             str(month).strip()
@@ -363,6 +471,7 @@ def evaluate_dossier(
                 f"Payslip Validation: Expected 3 months leading up to LWD, "
                 f"found {len(all_payslip_months)} across all payslip document(s)."
             )
+
 
         uan = _unwrap_doc(dossier, "UAN_SCREENSHOT")
         uan_history = uan.get("employment_history") or []
@@ -388,6 +497,7 @@ def evaluate_dossier(
             except (TypeError, ValueError, KeyError):
                 issues.append("UAN Validation: Invalid date formats found in UAN employment history.")
 
+
         if self_dec_doj and lwd_date:
             days_gap = _calculate_days_between(self_dec_doj, lwd_date)
             if days_gap != -9999:
@@ -407,17 +517,23 @@ def evaluate_dossier(
                         "recent employer is mandatory."
                     )
 
+
     gap_start_date = lwd_date
     if is_fresher and passing_year:
         gap_start_date = f"{passing_year}-07-01"
 
+
     if self_dec_doj and gap_start_date:
         days_gap = _calculate_days_between(self_dec_doj, gap_start_date)
         if days_gap != -9999:
+            # Calculate months gap (approx. 30.4 days per month)
+            months_gap = round(days_gap / 30.4, 1)
+           
             if days_gap > 180 and "GAP_DECLARATION_FORM" not in uploaded_types:
-                issues.append(f"Employment/Education gap of {days_gap} days detected. Gap Declaration Form is missing.")
+                issues.append(f"Employment/Education gap of {days_gap} days ({months_gap} months) detected. Gap Declaration Form is missing.")
             if days_gap > 365 and "GAP_AFFIDAVIT" not in uploaded_types:
-                issues.append(f"Gap of {days_gap} days detected. Notarized Gap Affidavit on stamp paper is missing.")
+                issues.append(f"Gap of {days_gap} days ({months_gap} months) detected. Notarized Gap Affidavit on stamp paper is missing.")
+
 
     return {
         "passed": len(issues) == 0,
@@ -425,3 +541,6 @@ def evaluate_dossier(
         "pending_documents": pending_documents,
         "dossier_status": "INCOMPLETE" if missing_docs or issues else "COMPLETE",
     }
+
+
+

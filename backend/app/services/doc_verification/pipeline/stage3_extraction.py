@@ -20,7 +20,7 @@ FIELD_SHAPE_PATTERNS = {
     "account_number": re.compile(r"^\d{6,20}$"),
 }
 ID_LIKE_FIELDS = {"pan_number", "aadhaar_number", "ifsc_code", "account_number"}
-DATE_FIELDS = {"dob", "doj", "last_working_day", "gap_start_date", "gap_end_date"}
+DATE_FIELDS = {"dob", "doj", "last_working_day", "gap_start_date", "gap_end_date", "issue_date"}
 INTEGER_FIELDS = {"passing_year", "total_points_filled"}
 BOOLEAN_FIELDS = {
     "has_joining_bonus",
@@ -83,9 +83,11 @@ DOC_TYPE_FIELDS: dict[str, list[str]] = {
     "MARKSHEET": [
         "qualification_level",
         "passing_year",
+        "issue_date",
+        "marks_or_grade",
         "has_supplementary_or_backlog_text (boolean)",
     ],
-    "DEGREE_CERTIFICATE": ["qualification_level", "passing_year"],
+    "DEGREE_CERTIFICATE": ["qualification_level", "passing_year", "issue_date", "marks_or_grade"],
     "SIGNED_OFFER_LETTER_JADE": [
         "candidate_name",
         "grade",

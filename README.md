@@ -121,6 +121,18 @@ Review notes and confirmed changes are displayed side by side
 HR can open the candidate summary for education and employment history
 ```
 
+### Document Replacement And Reanalysis
+
+Document submissions can be updated after their first verification run without creating a second candidate dossier.
+
+- A write-access user selects one PDF or image with **Upload document** at the top of the candidate review view.
+- **Reanalyse** appears alongside **Summarise candidate** after a document has been selected.
+- If a file with the same name already exists in the submission, the app asks the reviewer to confirm replacement. The old database record is replaced and its stored file is removed after the replacement is committed.
+- If the filename is new, the app asks the reviewer to confirm that it should be added to the candidate submission.
+- Confirming either action clears the prior extracted result, queues the complete candidate dossier for processing again, and refreshes the result in the review view when processing finishes.
+- ZIP archives are intentionally not accepted for a replacement action; upload one extracted PDF or image at a time.
+- Reanalysis is unavailable while a submission is already processing, preventing overlapping pipeline jobs for the same dossier.
+
 ### Manual Review Controls
 
 - The **Edit** control appears only for administrators and users whose `document_verification` module access is `write`.
@@ -129,14 +141,17 @@ HR can open the candidate summary for education and employment history
 - Saving the dialog stages only changed fields. **Confirm submission** appears only when staged changes exist.
 - Confirmed changes are persisted with the document extraction, update the displayed field state, and are listed as document/field/value bullet points next to review notes.
 - Read-access users can still inspect documents, review notes, and candidate summaries, but cannot edit or confirm extraction changes.
+- Every confirmed edit carries the submission revision. If another user has already updated or reanalysed the dossier, the second reviewer receives a conflict response and must refresh before making another change.
 
 ### Candidate Summary
 
 The **Summarise candidate** action is available in the Documents count area of a submission. It opens a dedicated summary view using the application’s existing visual style.
 
-- **Educational background:** qualification, available course start date, end or issue date, marks/grade, result, and source document. A marksheet is shown as passed when no supplementary/backlog text is detected, not passed when it is detected, and not stated when that signal is unavailable.
+- **Educational background:** qualification, available course start date, end date, issue date, marks/grade, result, and source document. A marksheet is shown as passed when no supplementary/backlog text is detected, not passed when it is detected, and not stated when that signal is unavailable.
 - **Employment history:** employer, start date, end date, and source. UAN history is used first. If no UAN employment history is available, the app falls back to previous-organization offer letters and relieving letters.
 - Empty or incomplete model output is shown as unavailable rather than causing the review or summary screen to fail.
+
+The document extraction prompt requests `issue_date` and `marks_or_grade` for marksheets and degree certificates. The candidate summary renders the issue date in its own column when it is present in the source document.
 
 ## One-Time Decision Rule
 
@@ -329,9 +344,12 @@ POST  /api/doc-verification/drive-submit
 GET   /api/doc-verification/submissions/{submission_id}
 PATCH /api/doc-verification/submissions/{submission_id}/manual-changes
 GET   /api/doc-verification/submissions/{submission_id}/candidate-summary
+POST  /api/doc-verification/submissions/{submission_id}/reanalyse
 ```
 
-`PATCH /api/doc-verification/submissions/{submission_id}/manual-changes` requires `write` access. Its payload contains a non-empty `changes` array, where every item includes `filename`, `field`, `value`, and `status` (`match` or `mismatch`).
+`PATCH /api/doc-verification/submissions/{submission_id}/manual-changes` requires `write` access. Its payload contains a non-empty `changes` array, where every item includes `filename`, `field`, `value`, and `status` (`match` or `mismatch`), plus the current `expected_revision`.
+
+`POST /api/doc-verification/submissions/{submission_id}/reanalyse` requires `write` access and multipart form data containing `file`, `expected_revision`, and `confirm`. The first call with `confirm=false` returns whether the selected filename will replace or add a document. A confirmed call (`confirm=true`) atomically updates the dossier, increments its revision, and queues reanalysis.
 
 ## Demo And Seed Data
 

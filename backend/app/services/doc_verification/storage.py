@@ -44,6 +44,26 @@ class DocumentStorageService:
         folder_name = f"{submission_id}_{sanitize_path_part(candidate_name)[:80]}"
         return self.upload_root / folder_name
 
+    def validate_reanalysis_filename(self, filename: str | None) -> str:
+        """Validate a single replacement document before a reviewer confirms it."""
+
+        safe_name = Path(filename or "document").name
+        extension = Path(safe_name).suffix.lower()
+        if extension not in PROCESSABLE_EXTENSIONS:
+            raise ValueError("Reanalysis accepts one PDF or image document, not a ZIP archive.")
+        return safe_name
+
+    async def delete_files(self, paths: list[str]) -> None:
+        """Best-effort cleanup after a replacement has been committed or rejected."""
+
+        for raw_path in paths:
+            if not raw_path:
+                continue
+            try:
+                await asyncio.to_thread(Path(raw_path).unlink, missing_ok=True)
+            except OSError:
+                logger.warning("[DOC_VERIFY] Could not remove obsolete document path=%r", raw_path)
+
     async def save_uploads(
         self,
         submission_id: int,

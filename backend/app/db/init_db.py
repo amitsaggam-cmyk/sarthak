@@ -45,6 +45,10 @@ USER_COLUMNS = {
     "password_reset_pin_expires_at": "TIMESTAMP NULL",
 }
 
+DOCUMENT_VERIFICATION_SUBMISSION_COLUMNS = {
+    "revision": "INTEGER NOT NULL DEFAULT 1",
+}
+
 def _add_missing_columns(sync_connection, table_name: str, columns: dict[str, str]) -> None:
     inspector = inspect(sync_connection)
     existing = {column["name"] for column in inspector.get_columns(table_name)}
@@ -69,4 +73,9 @@ async def initialize_database() -> None:
             _add_missing_columns,
             "users",
             USER_COLUMNS,
+        )
+        await connection.run_sync(
+            _add_missing_columns,
+            "document_verification_submissions",
+            DOCUMENT_VERIFICATION_SUBMISSION_COLUMNS,
         )

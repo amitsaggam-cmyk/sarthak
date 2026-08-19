@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import DocumentVerificationFile, DocumentVerificationSubmission
@@ -135,7 +135,7 @@ class DocumentVerificationRepository:
         )
         return result.scalars().first()
 
-    async def mark_completed(self, submission_id: int, result: dict) -> None:
+    async def mark_completed(self, submission_id: int, result: dict, expected_revision: int | None = None) -> bool:
         """Persist the pipeline result without leaking local file paths."""
 
         pipeline_status = result.get("status")
@@ -155,18 +155,20 @@ class DocumentVerificationRepository:
         }
         if candidate_name:
             values["candidate_name"] = candidate_name
-        await self.session.execute(
-            update(DocumentVerificationSubmission)
-            .where(DocumentVerificationSubmission.id == submission_id)
-            .values(**values)
-        )
+        query = update(DocumentVerificationSubmission).where(DocumentVerificationSubmission.id == submission_id)
+        if expected_revision is not None:
+            query = query.where(DocumentVerificationSubmission.revision == expected_revision)
+        update_result = await self.session.execute(query.values(**values))
+        return update_result.rowcount == 1
 
-    async def apply_manual_changes(self, submission_id: int, changes: list[dict]) -> bool:
+    async def apply_manual_changes(self, submission_id: int, changes: list[dict], expected_revision: int) -> bool:
         """Persist HR-reviewed extraction values and their explicit field state."""
 
         submission = await self.get_submission(submission_id)
         if not submission:
             return False
+        if submission.revision != expected_revision or submission.status == "PROCESSING":
+            raise RuntimeError("This submission was updated by another user or is being analysed. Refresh and try again.")
 
         documents = submission_extracted_documents(submission)
         for change in changes:
@@ -204,21 +206,88 @@ class DocumentVerificationRepository:
                 "status": new_status,
             })
 
-        await self.session.execute(
+        result = await self.session.execute(
             update(DocumentVerificationSubmission)
-            .where(DocumentVerificationSubmission.id == submission_id)
+            .where(
+                DocumentVerificationSubmission.id == submission_id,
+                DocumentVerificationSubmission.revision == expected_revision,
+                DocumentVerificationSubmission.status != "PROCESSING",
+            )
             .values(
                 extracted_documents_json=json.dumps(_public_extractions(documents)),
+                revision=DocumentVerificationSubmission.revision + 1,
                 updated_at=datetime.utcnow(),
             )
         )
+        if result.rowcount != 1:
+            raise RuntimeError("This submission was updated by another user. Refresh and try again.")
         return True
 
-    async def mark_failed(self, submission_id: int, error: str) -> None:
-        await self.session.execute(
+    async def reset_for_reanalysis(
+        self,
+        submission_id: int,
+        expected_revision: int,
+        replacement: StoredDocument,
+    ) -> tuple[str, list[str], int]:
+        """Atomically add or replace a file and reserve this submission for processing."""
+
+        submission = await self.get_submission(submission_id)
+        if not submission:
+            raise LookupError("Submission not found.")
+
+        files = await self.get_files(submission_id)
+        matching_files = [
+            file for file in files
+            if file.filename.casefold() == replacement.original_name.casefold()
+        ]
+        action = "replace" if matching_files else "add"
+        result = await self.session.execute(
             update(DocumentVerificationSubmission)
-            .where(DocumentVerificationSubmission.id == submission_id)
+            .where(
+                DocumentVerificationSubmission.id == submission_id,
+                DocumentVerificationSubmission.revision == expected_revision,
+                DocumentVerificationSubmission.status != "PROCESSING",
+            )
             .values(
+                status="PROCESSING",
+                pipeline_status_raw="REANALYSIS_QUEUED",
+                summary="Document reanalysis is in progress.",
+                issues_json="[]",
+                pending_documents_json="[]",
+                extracted_documents_json="[]",
+                processing_error=None,
+                revision=DocumentVerificationSubmission.revision + 1,
+                updated_at=datetime.utcnow(),
+            )
+        )
+        if result.rowcount != 1:
+            raise RuntimeError("This submission was updated by another user or is already being analysed. Refresh and try again.")
+
+        obsolete_paths = [file.file_path for file in matching_files]
+        if matching_files:
+            await self.session.execute(
+                delete(DocumentVerificationFile).where(
+                    DocumentVerificationFile.id.in_([file.id for file in matching_files])
+                )
+            )
+
+        self.session.add(DocumentVerificationFile(
+            submission_id=submission_id,
+            filename=replacement.original_name,
+            stored_filename=replacement.stored_name,
+            content_type=replacement.content_type,
+            file_path=replacement.file_path,
+            size_bytes=replacement.size_bytes,
+        ))
+        await self.session.flush()
+        return action, obsolete_paths, expected_revision + 1
+
+    async def mark_failed(self, submission_id: int, error: str, expected_revision: int | None = None) -> bool:
+        query = update(DocumentVerificationSubmission).where(DocumentVerificationSubmission.id == submission_id)
+        if expected_revision is not None:
+            query = query.where(DocumentVerificationSubmission.revision == expected_revision)
+        update_result = await self.session.execute(
+            query.values(
                 status="NEEDS_HUMAN_REVIEW",
                 pipeline_status_raw="SYSTEM_ERROR",
                 summary="Pipeline crashed before producing a verdict.",
@@ -227,6 +296,7 @@ class DocumentVerificationRepository:
                 updated_at=datetime.utcnow(),
             )
         )
+        return update_result.rowcount == 1
 
 
 def submission_issues(submission: DocumentVerificationSubmission) -> list[str]:

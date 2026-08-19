@@ -177,11 +177,24 @@ export const accountApi = {
 export const docVerificationApi = {
   list: () => apiRequest("/doc-verification/submissions"),
   detail: (submissionId) => apiRequest(`/doc-verification/submissions/${submissionId}`),
-  confirmManualChanges: (submissionId, changes) =>
+  confirmManualChanges: (submissionId, changes, expectedRevision) =>
     apiRequest(`/doc-verification/submissions/${submissionId}/manual-changes`, {
       method: "PATCH",
-      body: JSON.stringify({ changes }),
+      body: JSON.stringify({ changes, expected_revision: expectedRevision }),
     }),
+  reanalyse: async (submissionId, file, expectedRevision, confirm = false) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("expected_revision", String(expectedRevision));
+    formData.append("confirm", String(confirm));
+    const response = await authedFetch(`${API_BASE_URL}/doc-verification/submissions/${submissionId}/reanalyse`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || "Could not queue document reanalysis.");
+    return data;
+  },
   candidateSummary: (submissionId) =>
     apiRequest(`/doc-verification/submissions/${submissionId}/candidate-summary`),
   submit: async (files) => {

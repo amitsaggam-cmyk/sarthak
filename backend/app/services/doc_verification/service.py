@@ -142,6 +142,7 @@ class DocumentVerificationService:
         submission = await self.repository.get_submission(submission_id)
         if not submission:
             return None
+        await self.repository.session.refresh(submission)
         files = await self.repository.get_files(submission_id)
         return DocumentVerificationSubmissionDetail(
             id=submission.id,
@@ -149,6 +150,7 @@ class DocumentVerificationService:
             status=submission.status,
             created_at=submission.created_at,
             updated_at=submission.updated_at,
+            revision=submission.revision,
             summary=submission.summary,
             issues=submission_issues(submission),
             pending_documents=submission_pending_documents(submission),
@@ -157,11 +159,74 @@ class DocumentVerificationService:
             files=[self._file_response(file) for file in files],
         )
 
-    async def apply_manual_changes(self, submission_id: int, changes: list[dict]) -> bool:
-        applied = await self.repository.apply_manual_changes(submission_id, changes)
+    async def apply_manual_changes(self, submission_id: int, changes: list[dict], expected_revision: int) -> bool:
+        applied = await self.repository.apply_manual_changes(submission_id, changes, expected_revision)
         if applied:
             await self.repository.session.commit()
         return applied
+
+    async def inspect_reanalysis_upload(
+        self,
+        submission_id: int,
+        filename: str | None,
+        expected_revision: int,
+    ) -> tuple[str, str, int]:
+        submission = await self.repository.get_submission(submission_id)
+        if not submission:
+            raise LookupError("Submission not found.")
+        if submission.status == "PROCESSING":
+            raise RuntimeError("This submission is already being analysed. Wait for it to finish before uploading another document.")
+        if submission.revision != expected_revision:
+            raise RuntimeError("This submission was updated by another user. Refresh and try again.")
+        safe_filename = self.storage.validate_reanalysis_filename(filename)
+        files = await self.repository.get_files(submission_id)
+        duplicate = any(file.filename.casefold() == safe_filename.casefold() for file in files)
+        action = "replace" if duplicate else "add"
+        return action, safe_filename, submission.revision
+
+    async def queue_reanalysis(
+        self,
+        submission_id: int,
+        upload: UploadFile,
+        expected_revision: int,
+    ) -> tuple[str, str, int]:
+        action, safe_filename, _ = await self.inspect_reanalysis_upload(
+            submission_id,
+            upload.filename,
+            expected_revision,
+        )
+        submission = await self.repository.get_submission(submission_id)
+        if not submission:
+            raise LookupError("Submission not found.")
+        existing_files = await self.repository.get_files(submission_id)
+        if action == "add" and len(existing_files) >= self.storage.max_files:
+            raise ValueError(f"This submission already has the maximum of {self.storage.max_files} documents.")
+
+        stored_files: list = []
+        try:
+            stored_files = await self.storage.save_uploads(submission_id, submission.candidate_name, [upload])
+            if len(stored_files) != 1:
+                raise ValueError("Reanalysis accepts exactly one PDF or image document.")
+            actual_action, obsolete_paths, revision = await self.repository.reset_for_reanalysis(
+                submission_id,
+                expected_revision,
+                stored_files[0],
+            )
+            await self.repository.session.commit()
+        except Exception:
+            await self.repository.session.rollback()
+            await self.storage.delete_files([file.file_path for file in stored_files])
+            raise
+
+        await self.storage.delete_files(obsolete_paths)
+        logger.info(
+            "[DOC_VERIFY] Reanalysis queued submission_id=%s action=%s filename=%r revision=%s",
+            submission_id,
+            actual_action,
+            safe_filename,
+            revision,
+        )
+        return actual_action, safe_filename, revision
 
     async def candidate_summary(self, submission_id: int) -> CandidateSummaryResponse | None:
         submission = await self.repository.get_submission(submission_id)
@@ -184,8 +249,9 @@ class DocumentVerificationService:
                 education.append(CandidateEducationSummary(
                     qualification=str(data.get("qualification_level") or "Not extracted"),
                     start_date=_first_value(data, "start_date", "course_start_date", "admission_date"),
-                    end_date=_first_value(data, "passing_date", "issue_date", "passing_year"),
-                    marks_or_grade=_first_value(data, "marks", "percentage", "cgpa", "grade"),
+                    end_date=_first_value(data, "end_date", "course_end_date", "passing_date", "passing_year"),
+                    issue_date=_first_value(data, "issue_date", "date_of_issue"),
+                    marks_or_grade=_first_value(data, "marks_or_grade", "marks", "percentage", "cgpa", "grade"),
                     result="Passed" if passed is True else "Not passed" if passed is False else "Not stated",
                     source=filename,
                 ))
@@ -252,6 +318,7 @@ async def process_document_verification_submission(submission_id: int) -> None:
         if not submission:
             logger.warning("[DOC_VERIFY] Submission not found for processing submission_id=%s", submission_id)
             return
+        processing_revision = submission.revision
         files = await repository.get_files(submission_id)
         uploaded_files = [
             {"originalName": file.filename, "storedPath": str(resolved_path)}
@@ -273,8 +340,11 @@ async def process_document_verification_submission(submission_id: int) -> None:
         result = await orchestrator.run(uploaded_files)
         async with AsyncSessionLocal() as session:
             repository = DocumentVerificationRepository(session)
-            await repository.mark_completed(submission_id, result)
+            applied = await repository.mark_completed(submission_id, result, processing_revision)
             await session.commit()
+        if not applied:
+            logger.info("[DOC_VERIFY] Discarded stale pipeline result submission_id=%s revision=%s", submission_id, processing_revision)
+            return
         logger.info(
             "[DOC_VERIFY] Pipeline completed submission_id=%s status=%s issues=%s",
             submission_id,
@@ -285,5 +355,7 @@ async def process_document_verification_submission(submission_id: int) -> None:
         logger.exception("Document verification pipeline failed submission_id=%s", submission_id)
         async with AsyncSessionLocal() as session:
             repository = DocumentVerificationRepository(session)
-            await repository.mark_failed(submission_id, str(exc))
+            applied = await repository.mark_failed(submission_id, str(exc), processing_revision)
             await session.commit()
+        if not applied:
+            logger.info("[DOC_VERIFY] Discarded stale pipeline error submission_id=%s revision=%s", submission_id, processing_revision)

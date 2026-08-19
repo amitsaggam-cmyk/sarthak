@@ -932,6 +932,21 @@ tbody tr:hover {
   min-width: 0;
 }
 
+.modalHeaderActions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.visuallyHidden {
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
+}
+
 .logModalHeader h2 {
   font-size: 20px;
   line-height: 1.25;
@@ -1196,6 +1211,11 @@ tbody tr:hover {
 .editExtractionDialog {
   max-width: 760px;
   width: min(760px, 96vw);
+}
+
+.reanalysisDialog {
+  max-width: 520px;
+  width: min(520px, 96vw);
 }
 
 .editFieldRow {
@@ -3222,6 +3242,11 @@ textarea {
   .modelFieldsHeader,
   .confirmChangesRow {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .modalHeaderActions {
+    align-items: flex-end;
     flex-direction: column;
   }
 

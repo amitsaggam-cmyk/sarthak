@@ -200,6 +200,7 @@ class DocumentVerificationSubmissionDetail(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    revision: int = 1
     summary: str | None = None
     issues: list[str] = []
     pending_documents: list[str] = []
@@ -221,12 +222,14 @@ class DocumentVerificationManualChangesRequest(BaseModel):
     """Manual review changes awaiting HR confirmation."""
 
     changes: list[DocumentVerificationManualChange] = Field(min_length=1, max_length=200)
+    expected_revision: int = Field(ge=1)
 
 
 class CandidateEducationSummary(BaseModel):
     qualification: str
     start_date: str | None = None
     end_date: str | None = None
+    issue_date: str | None = None
     marks_or_grade: str | None = None
     result: str | None = None
     source: str
@@ -243,6 +246,15 @@ class CandidateSummaryResponse(BaseModel):
     candidate_name: str
     education: list[CandidateEducationSummary] = []
     employment_history: list[CandidateEmploymentSummary] = []
+
+
+class DocumentReanalysisResponse(BaseModel):
+    """Result of checking or queueing a candidate document reanalysis."""
+
+    action: str
+    message: str
+    filename: str
+    revision: int | None = None
 
 
 class DocumentVerificationSubmitResponse(BaseModel):
