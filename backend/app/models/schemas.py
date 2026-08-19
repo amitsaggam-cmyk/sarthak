@@ -201,6 +201,7 @@ class DocumentVerificationSubmissionDetail(BaseModel):
     created_at: datetime
     updated_at: datetime
     revision: int = 1
+    reanalysis_required: bool = False
     summary: str | None = None
     issues: list[str] = []
     pending_documents: list[str] = []

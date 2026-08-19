@@ -21,6 +21,7 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+
 :root[data-theme="dark"] {
   --primary: #3b82f6;
   --primary-dark: #2563eb;
@@ -37,6 +38,7 @@
   --danger-bg: #450a0a;
   --warning-bg: #451a03;
 }
+
 
 :root[data-theme="light"] {
   --primary: #2563eb;
@@ -57,14 +59,17 @@
   --warning-bg: #fef3c7;
 }
 
+
 * {
   box-sizing: border-box;
 }
+
 
 body {
   margin: 0;
   overflow-x: hidden;
 }
+
 
 button,
 input,
@@ -72,19 +77,23 @@ textarea {
   font: inherit;
 }
 
+
 h1,
 h2,
 p {
   margin: 0;
 }
 
+
 button {
   border: 0;
 }
 
+
 .appShell {
   min-height: 100vh;
 }
+
 
 .sidebar {
   background: var(--bg-sidebar);
@@ -98,6 +107,7 @@ button {
   width: 220px;
 }
 
+
 .sidebarLogo {
   display: flex;
   align-items: center;
@@ -106,15 +116,18 @@ button {
   padding: 4px 6px;
 }
 
+
 .logoIcon {
   color: var(--primary);
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
 
+
 .sidebarLogo:hover .logoIcon {
   transform: rotate(15deg);
 }
+
 
 .logoText {
   color: var(--text-main);
@@ -128,6 +141,7 @@ button {
   -webkit-text-fill-color: transparent;
 }
 
+
 .logoTagline {
   color: var(--text-muted);
   font-size: 9px;
@@ -137,10 +151,12 @@ button {
   display: block;
 }
 
+
 .navList {
   display: grid;
   gap: 6px;
 }
+
 
 .navItem {
   align-items: center;
@@ -157,10 +173,12 @@ button {
   transition: background 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
+
 .navItem:hover {
   background: var(--bg-muted);
   color: var(--text-main);
 }
+
 
 .navItem.active {
   background: var(--primary-soft);
@@ -168,10 +186,12 @@ button {
   font-weight: 700;
 }
 
+
 .sidebarFooter {
   margin-top: auto;
   padding-top: 12px;
 }
+
 
 .sidebarUser {
   align-items: center;
@@ -185,6 +205,7 @@ button {
   margin-bottom: 24px;
 }
 
+
 .sidebarUser strong,
 .sidebarUser small {
   display: block;
@@ -193,10 +214,12 @@ button {
   white-space: nowrap;
 }
 
+
 .sidebarUser small {
   color: var(--text-muted);
   font-size: 11px;
 }
+
 
 .sidebarLogout {
   align-items: center;
@@ -211,16 +234,19 @@ button {
   padding: 8px 10px;
 }
 
+
 .sidebarLogout:hover {
   background: var(--bg-card);
   color: var(--text-main);
 }
+
 
 .contentShell {
   margin-left: 220px;
   min-width: 0;
   overflow-x: hidden;
 }
+
 
 .topBar {
   align-items: center;
@@ -236,14 +262,17 @@ button {
   z-index: 5;
 }
 
+
 .topBar > div:first-child {
   margin-right: auto;
 }
+
 
 .topBar h1 {
     font-size:18px;
     font-weight:600;
 }
+
 
 .eyebrow {
   color: var(--text-muted);
@@ -253,12 +282,14 @@ button {
   text-transform: uppercase;
 }
 
+
 .profileChip {
   align-items: center;
   color: var(--text-main);
   display: flex;
   gap: 8px;
 }
+
 
 .avatar {
   align-items: center;
@@ -273,9 +304,11 @@ button {
   width: 34px;
 }
 
+
 .profileName {
   font-weight: 600;
 }
+
 
 .pageContent {
   background:
@@ -287,12 +320,14 @@ button {
   padding: 18px;
 }
 
+
 .mailsPage,
 .contentPage {
   display: grid;
   gap: 12px;
   min-width: 0;
 }
+
 
 .pageTitleRow {
   align-items: center;
@@ -308,12 +343,14 @@ button {
   z-index: 10;
 }
 
+
 .pageTitleRow h1 {
   color: var(--text-main);
   font-size: 28px;
   font-weight: 700;
   line-height: 1.2;
 }
+
 
 .pageTitleRow .eyebrow {
   font-size: 11px;
@@ -323,6 +360,7 @@ button {
   color: var(--text-muted);
   margin-bottom: 2px;
 }
+
 
 .authNavbar {
   position: absolute;
@@ -336,11 +374,13 @@ button {
   text-align: center;
 }
 
+
 @media (max-width: 640px) {
   .authNavbar {
     padding: 16px 24px;
   }
 }
+
 
 .mailToolbar,
 .logToolbar {
@@ -348,6 +388,7 @@ button {
   display: flex;
   gap: 12px;
 }
+
 
 .panel,
 .reviewHeader {
@@ -360,12 +401,14 @@ button {
   padding: 14px;
 }
 
+
 :root[data-theme="light"] .panel,
 :root[data-theme="light"] .reviewHeader,
 :root[data-theme="light"] .metricCard,
 :root[data-theme="light"] .logModalPanel {
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
 }
+
 
 .panelHeader {
   align-items: center;
@@ -374,12 +417,14 @@ button {
   margin-bottom: 14px;
 }
 
+
 .panelHeader h2,
 .panel h2,
 .reviewHeader h2 {
   font-size: 30px;
   font-weight: 600;
 }
+
 
 .inboxPanel {
   height: auto;
@@ -388,6 +433,7 @@ button {
   position: static;
 }
 
+
 .emailList,
 .detailStack,
 .settingsGrid {
@@ -395,9 +441,11 @@ button {
   gap: 12px;
 }
 
+
 .emailList {
   grid-template-columns: 1fr;
 }
+
 
 .emailRow {
   align-items: center;
@@ -415,6 +463,7 @@ button {
   transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
+
 .emailRow:hover {
   background: #243653;
   border-color: #3b82f6;
@@ -422,9 +471,11 @@ button {
   transform: translateY(-1px);
 }
 
+
 :root[data-theme="light"] .emailRow {
   border-color: #cbd5e1;
 }
+
 
 :root[data-theme="light"] .emailRow:hover {
   background: #dbeafe;
@@ -433,16 +484,19 @@ button {
   color: #111827;
 }
 
+
 :root[data-theme="light"] .emailRow:hover .emailMeta,
 :root[data-theme="light"] .emailRow:hover .emailTime {
   color: #374151;
 }
+
 
 .emailRow.selected {
   background: #1c3158;
   border-color: var(--primary);
   border-left-width: 4px;
 }
+
 
 .backButton {
   align-items: center;
@@ -459,10 +513,12 @@ button {
   padding: 8px 12px;
 }
 
+
 .backButton:hover {
   background: var(--bg-card);
   border-color: var(--primary);
 }
+
 
 .emailSubject {
   font-weight: 600;
@@ -470,6 +526,7 @@ button {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
 
 .emailMeta,
 .emailTime,
@@ -480,6 +537,7 @@ button {
   font-size: 13px;
 }
 
+
 .emailFooter {
   align-items: center;
   display: flex;
@@ -487,6 +545,7 @@ button {
   justify-content: space-between;
   margin-top: 0;
 }
+
 
 .workflowBadge,
 .badge {
@@ -500,11 +559,13 @@ button {
   color: var(--text-main);
 }
 
+
 .metricGrid {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+
 
 .metricCard {
   align-items: center;
@@ -516,6 +577,7 @@ button {
   min-height: 82px;
   padding: 14px;
 }
+
 
 .metricIcon {
   align-items: center;
@@ -529,11 +591,13 @@ button {
   width: 42px;
 }
 
+
 .metricIcon.success {
   background: var(--success-bg);
   border-color: rgba(134, 239, 172, 0.28);
   color: #86efac;
 }
+
 
 .metricIcon.warning {
   background: var(--warning-bg);
@@ -541,11 +605,13 @@ button {
   color: var(--warning);
 }
 
+
 .metricIcon.danger {
   background: var(--danger-bg);
   border-color: rgba(248, 113, 113, 0.28);
   color: var(--danger);
 }
+
 
 .metricCard small {
   color: var(--text-muted);
@@ -556,6 +622,7 @@ button {
   text-transform: uppercase;
 }
 
+
 .metricCard strong {
   display: block;
   font-size: 28px;
@@ -563,16 +630,19 @@ button {
   margin-top: 3px;
 }
 
+
 .statusOverview {
   display: grid;
   gap: 10px;
 }
+
 
 .statusOverviewHeader {
   align-items: center;
   display: flex;
   justify-content: space-between;
 }
+
 
 .statusOverviewHeader span {
   color: var(--text-muted);
@@ -582,9 +652,11 @@ button {
   text-transform: uppercase;
 }
 
+
 .statusOverviewHeader strong {
   font-size: 13px;
 }
+
 
 .statusBar {
   background: var(--bg-muted);
@@ -595,35 +667,42 @@ button {
   overflow: hidden;
 }
 
+
 .statusSegment {
   min-width: 0;
 }
+
 
 .statusSegment.new,
 .legendDot.new {
   background: var(--primary);
 }
 
+
 .statusSegment.pending,
 .legendDot.pending {
   background: var(--warning);
 }
+
 
 .statusSegment.completed,
 .legendDot.completed {
   background: var(--success);
 }
 
+
 .statusSegment.rejected,
 .legendDot.rejected {
   background: var(--danger);
 }
+
 
 .statusLegend {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
+
 
 .statusLegend span {
   align-items: center;
@@ -634,6 +713,7 @@ button {
   gap: 6px;
 }
 
+
 .legendDot {
   border-radius: 999px;
   display: inline-flex;
@@ -641,10 +721,12 @@ button {
   width: 8px;
 }
 
+
 .workflowNew {
   background: var(--primary);
   color: #ffffff;
 }
+
 
 .workflowPending,
 .processingPending {
@@ -652,24 +734,29 @@ button {
   color: var(--warning);
 }
 
+
 .workflowCompleted {
   background: var(--success-bg);
   color: #86efac;
 }
 
+
 :root[data-theme="light"] .workflowCompleted {
   color: #166534;
 }
+
 
 .badgeMatch {
   background: var(--success-bg);
   color: #073518;
 }
 
+
 .badgeMismatch {
   background: var(--danger-bg);
   color: var(--danger);
 }
+
 
 .badgeToggle {
   background: var(--bg-card);
@@ -677,19 +764,23 @@ button {
   color: var(--text-main);
 }
 
+
 :root[data-theme="light"] .badgeToggle {
   background: #f8fafc;
   border-color: #e2e8f0;
   color: #475569;
 }
 
+
 :root[data-theme="dark"] .badgeMatch {
   color: #f0fdf4;
 }
 
+
 :root[data-theme="dark"] .badgeMismatch {
   color: #fee2e2;
 }
+
 
 .reviewHeader {
   align-items: flex-start;
@@ -699,22 +790,26 @@ button {
   justify-content: space-between;
 }
 
+
 .twoColumn {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+
 .tableScroller {
   max-width: 100%;
   overflow-x: hidden;
 }
+
 
 table {
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
 }
+
 
 th,
 td {
@@ -726,6 +821,7 @@ td {
   word-break: break-word;
 }
 
+
 th {
   background: var(--bg-muted);
   color: var(--text-main);
@@ -733,19 +829,23 @@ th {
   font-weight: 600;
 }
 
+
 tbody tr:hover {
   background: var(--bg-muted);
 }
+
 
 .subtleCell {
   display: block;
   margin-top: 4px;
 }
 
+
 .logList {
   display: grid;
   gap: 10px;
 }
+
 
 .logItem {
   background: var(--bg-row);
@@ -755,11 +855,13 @@ tbody tr:hover {
   transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
+
 .logItem:hover {
   border-color: var(--primary);
   box-shadow: 0 10px 24px rgba(2, 6, 23, 0.18);
   transform: translateY(-1px);
 }
+
 
 .logSummary {
   align-items: center;
@@ -775,9 +877,11 @@ tbody tr:hover {
   width: 100%;
 }
 
+
 .logSummary:hover {
   background: #9bbdf4;
 }
+
 
 .logSummary small {
   color: var(--text-muted);
@@ -786,9 +890,11 @@ tbody tr:hover {
   margin-top: 3px;
 }
 
+
 .decisionText {
   font-weight: 600;
 }
+
 
 .logDropdown {
   background: var(--bg-card);
@@ -797,6 +903,7 @@ tbody tr:hover {
   gap: 14px;
   padding: 14px;
 }
+
 
 .auditSummary {
   background: var(--bg-muted);
@@ -807,16 +914,19 @@ tbody tr:hover {
   padding: 14px;
 }
 
+
 .auditDecision {
   align-items: center;
   display: flex;
   gap: 12px;
 }
 
+
 .auditDecision > svg {
   color: var(--primary);
   flex: 0 0 auto;
 }
+
 
 .auditDecision > div {
   display: grid;
@@ -824,9 +934,11 @@ tbody tr:hover {
   min-width: 0;
 }
 
+
 .auditDecision strong {
   overflow-wrap: anywhere;
 }
+
 
 .auditMetaGrid {
   display: grid;
@@ -835,10 +947,12 @@ tbody tr:hover {
   margin: 0;
 }
 
+
 .auditMetaGrid div {
   display: grid;
   gap: 5px;
 }
+
 
 .auditMetaGrid dt {
   align-items: center;
@@ -851,12 +965,14 @@ tbody tr:hover {
   text-transform: uppercase;
 }
 
+
 .auditMetaGrid dd {
   font-size: 13px;
   font-weight: 600;
   margin: 0;
   overflow-wrap: anywhere;
 }
+
 
 .auditNote {
   border-left: 3px solid var(--primary);
@@ -865,6 +981,7 @@ tbody tr:hover {
   padding-left: 12px;
 }
 
+
 .auditNote strong {
   color: var(--text-muted);
   font-size: 11px;
@@ -872,17 +989,20 @@ tbody tr:hover {
   text-transform: uppercase;
 }
 
+
 .auditNote p {
   font-size: 13px;
   line-height: 1.5;
   white-space: pre-wrap;
 }
 
+
 .comparisonTableWrap {
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow-x: auto;
 }
+
 
 .logModal {
   align-items: center;
@@ -894,6 +1014,7 @@ tbody tr:hover {
   position: fixed;
   z-index: 25;
 }
+
 
 .logModalPanel {
   background: var(--bg-card);
@@ -908,10 +1029,12 @@ tbody tr:hover {
   width: min(1180px, 96vw);
 }
 
+
 .verificationModalPanel {
   max-width: 1380px;
   width: min(1380px, 98vw);
 }
+
 
 .logModalHeader {
   align-items: flex-start;
@@ -921,10 +1044,11 @@ tbody tr:hover {
   justify-content: space-between;
   padding-bottom: 12px;
   position: sticky;      
-  top: 0;               
+  top: 0;              
   background: var(--bg-card);  
-  z-index: 2;             
+  z-index: 2;            
 }
+
 
 .logModalHeader > div {
   display: grid;
@@ -932,39 +1056,6 @@ tbody tr:hover {
   min-width: 0;
 }
 
-.modalHeaderActions {
-  align-items: center;
-  display: flex;
-  gap: 8px;
-  max-width: min(52vw, 520px);
-}
-
-.uploadAction {
-  max-width: 360px;
-  min-width: 0;
-}
-
-.uploadAction span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.closeAction {
-  flex: 0 0 auto;
-  min-height: 38px;
-  min-width: 38px;
-  padding: 8px;
-}
-
-.visuallyHidden {
-  height: 1px;
-  opacity: 0;
-  overflow: hidden;
-  pointer-events: none;
-  position: absolute;
-  width: 1px;
-}
 
 .logModalHeader h2 {
   font-size: 20px;
@@ -972,21 +1063,25 @@ tbody tr:hover {
   overflow-wrap: anywhere;
 }
 
+
 .modalSplit {
   display: grid;
   gap: 14px;
   grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
 }
 
+
 .modalSection {
   background: var(--bg-muted);
   border: 1px solid var(--border);
   border-radius: 8px;
   display: grid;
+  align-content: start;
   gap: 12px;
   min-width: 0;
   padding: 12px;
 }
+
 
 .modalSectionHeader {
   align-items: center;
@@ -995,10 +1090,13 @@ tbody tr:hover {
   gap: 8px;
 }
 
+
 .modalSectionHeader h3 {
-  font-size: 15px;
+  font-size: 20px;
+  font-weight: 700;
   margin: 0;
 }
+
 
 .verificationWorkspace {
   display: grid;
@@ -1006,6 +1104,7 @@ tbody tr:hover {
   grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr);
   min-height: 560px;
 }
+
 
 .documentGridPane,
 .documentPreviewPanel,
@@ -1017,11 +1116,13 @@ tbody tr:hover {
   padding: 12px;
 }
 
+
 .documentGridPane {
   align-content: start;
   display: grid;
   gap: 12px;
 }
+
 
 .documentMiniGrid {
   display: grid;
@@ -1031,6 +1132,7 @@ tbody tr:hover {
   overflow: auto;
   padding-right: 2px;
 }
+
 
 .documentMiniCard {
   align-items: stretch;
@@ -1047,6 +1149,7 @@ tbody tr:hover {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+
 .documentMiniCard:hover,
 .documentMiniCard.selected {
   border-color: var(--primary);
@@ -1054,9 +1157,11 @@ tbody tr:hover {
   transform: translateY(-1px);
 }
 
+
 .documentMiniCard.selected {
   outline: 2px solid var(--primary-soft);
 }
+
 
 .docThumbWrap {
   align-items: center;
@@ -1071,11 +1176,13 @@ tbody tr:hover {
   width: 100%;
 }
 
+
 .docThumbWrap img {
   height: 100%;
   object-fit: cover;
   width: 100%;
 }
+
 
 .docThumbFallback {
   align-items: center;
@@ -1083,6 +1190,7 @@ tbody tr:hover {
   display: inline-flex;
   justify-content: center;
 }
+
 
 .documentMiniTitle,
 .documentMiniMeta {
@@ -1093,15 +1201,18 @@ tbody tr:hover {
   white-space: nowrap;
 }
 
+
 .documentMiniTitle {
   font-size: 12px;
   font-weight: 700;
 }
 
+
 .documentMiniMeta {
   color: var(--text-muted);
   font-size: 11px;
 }
+
 
 .documentReviewPane {
   display: grid;
@@ -1110,11 +1221,13 @@ tbody tr:hover {
   min-width: 0;
 }
 
+
 .documentPreviewPanel {
   display: grid;
   gap: 10px;
   grid-template-rows: auto minmax(0, 1fr);
 }
+
 
 .documentPreviewHeader {
   align-items: center;
@@ -1124,11 +1237,13 @@ tbody tr:hover {
   min-width: 0;
 }
 
+
 .documentPreviewHeader > div {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
+
 
 .documentPreviewHeader strong,
 .documentPreviewHeader span {
@@ -1138,10 +1253,12 @@ tbody tr:hover {
   white-space: nowrap;
 }
 
+
 .documentPreviewHeader span {
   color: var(--text-muted);
   font-size: 12px;
 }
+
 
 .verificationPreviewSurface {
   align-items: center;
@@ -1154,6 +1271,7 @@ tbody tr:hover {
   overflow: hidden;
 }
 
+
 .verificationPreviewImage,
 .verificationPreviewFrame {
   border: 0;
@@ -1163,9 +1281,11 @@ tbody tr:hover {
   width: 100%;
 }
 
+
 .verificationPreviewImage {
   object-fit: contain;
 }
+
 
 .documentPreviewEmpty {
   align-items: center;
@@ -1179,11 +1299,13 @@ tbody tr:hover {
   width: 100%;
 }
 
+
 .modelFieldsPanel {
   align-content: start;
   display: grid;
   gap: 10px;
 }
+
 
 .modelFieldsHeader,
 .reviewNotesLayout,
@@ -1194,23 +1316,28 @@ tbody tr:hover {
   justify-content: space-between;
 }
 
+
 .reviewNotesLayout {
   align-items: stretch;
 }
+
 
 .reviewNotesLayout > * {
   flex: 1 1 0;
 }
 
+
 .manualChangesPanel {
   border-left: 4px solid var(--primary);
 }
+
 
 .confirmChangesRow {
   border-top: 1px solid var(--border);
   justify-content: space-between;
   padding-top: 12px;
 }
+
 
 .textAction {
   background: transparent;
@@ -1223,73 +1350,24 @@ tbody tr:hover {
   text-decoration: underline;
 }
 
-.documentCountValue {
-  margin-right: 10px;
-}
-
-.documentActionGroup {
-  align-items: center;
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  vertical-align: middle;
-}
-
-.compactAction {
-  min-height: 32px;
-  padding: 6px 9px;
-  white-space: nowrap;
-}
 
 .editExtractionOverlay {
   z-index: 40;
 }
+
 
 .editExtractionDialog {
   max-width: 760px;
   width: min(760px, 96vw);
 }
 
-.reanalysisDialog {
-  max-width: 520px;
-  width: min(520px, 96vw);
-}
-
-.reanalysisLoadingState {
-  align-items: center;
-  color: var(--text-muted);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  justify-content: center;
-  min-height: 540px;
-  padding: 32px;
-  text-align: center;
-}
-
-.reanalysisLoadingState strong {
-  color: var(--text-main);
-  font-size: 16px;
-}
-
-.reanalysisLoadingState span {
-  max-width: 420px;
-}
-
-.reanalysisSpinner {
-  animation: reanalysisSpin 1s linear infinite;
-  color: var(--primary);
-}
-
-@keyframes reanalysisSpin {
-  to { transform: rotate(360deg); }
-}
 
 .editFieldRow {
   align-items: end;
   border-bottom: 1px solid var(--border);
   padding-bottom: 12px;
 }
+
 
 .editFieldRow label {
   display: grid;
@@ -1298,9 +1376,11 @@ tbody tr:hover {
   min-width: 0;
 }
 
+
 .editFieldRow label:last-child {
   flex-basis: 180px;
 }
+
 
 .editFieldRow span {
   color: var(--text-muted);
@@ -1308,21 +1388,25 @@ tbody tr:hover {
   font-weight: 700;
 }
 
+
 .candidateSummaryPage {
   display: grid;
   gap: 18px;
 }
+
 
 .candidateSummaryPanel {
   display: grid;
   gap: 14px;
 }
 
+
 .fieldResultGrid {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
+
 
 .fieldResultCard,
 .fieldStatusRow {
@@ -1336,11 +1420,13 @@ tbody tr:hover {
   padding: 10px;
 }
 
+
 .fieldResultCard > div {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
+
 
 .fieldResultCard span:first-child {
   color: var(--text-muted);
@@ -1350,10 +1436,12 @@ tbody tr:hover {
   text-transform: uppercase;
 }
 
+
 .fieldResultCard strong {
   font-size: 13px;
   overflow-wrap: anywhere;
 }
+
 
 .fieldResultBadge {
   align-items: center;
@@ -1366,29 +1454,35 @@ tbody tr:hover {
   padding: 5px 8px;
 }
 
+
 .fieldMatch {
   background: rgba(22, 163, 74, 0.12);
   border-color: rgba(22, 163, 74, 0.45);
 }
+
 
 .fieldMatch .fieldResultBadge {
   background: var(--success-bg);
   color: #86efac;
 }
 
+
 :root[data-theme="light"] .fieldMatch .fieldResultBadge {
   color: #166534;
 }
+
 
 .fieldMismatch {
   background: rgba(248, 113, 113, 0.12);
   border-color: rgba(248, 113, 113, 0.45);
 }
 
+
 .fieldMismatch .fieldResultBadge {
   background: var(--danger-bg);
   color: var(--danger);
 }
+
 
 .fieldStatusRow {
   color: var(--danger);
@@ -1396,37 +1490,47 @@ tbody tr:hover {
   justify-content: flex-start;
 }
 
+
 .sentReplyBox {
   margin: 0;
   max-height: 420px;
   min-height: 260px;
 }
 
+
 .comparisonTable {
   min-width: 720px;
 }
 
+
 .comparisonTable th {
-  font-size: 12px;
+  font-size: 15px;
   letter-spacing: 0.2px;
   text-transform: uppercase;
 }
+.comparisonTable td {
+  font-size: 13px; /* Adjust this value (e.g., 12px) to make the text smaller */
+}
+
 
 .comparisonTable td:first-child {
   font-weight: 700;
   text-transform: capitalize;
 }
 
+
 .comparisonTable td:last-child,
 .comparisonTable th:last-child {
-  text-align: right;
+  text-align: left;
   width: 120px;
 }
+
 
 .matchList {
   display: grid;
   gap: 8px;
 }
+
 
 .matchRow {
   align-items: center;
@@ -1439,6 +1543,7 @@ tbody tr:hover {
   padding: 10px;
   text-transform: capitalize;
 }
+
 
 pre,
 textarea {
@@ -1458,6 +1563,7 @@ textarea {
   width: 100%;
 }
 
+
 :root[data-theme="light"] pre,
 :root[data-theme="light"] textarea {
   background: #ffffff;
@@ -1465,15 +1571,18 @@ textarea {
   color: #111827;
 }
 
+
 :root[data-theme="light"] .panel,
 :root[data-theme="light"] .reviewHeader {
   color: #111827;
 }
 
+
 textarea {
   min-height: 170px;
   resize: vertical;
 }
+
 
 .actionRow {
   align-items: center;
@@ -1482,6 +1591,7 @@ textarea {
   gap: 10px;
   margin-top: 12px;
 }
+
 
 .primaryAction,
 .dangerAction,
@@ -1497,19 +1607,23 @@ textarea {
   padding: 9px 13px;
 }
 
+
 .primaryAction {
   background: var(--primary);
   color: #ffffff;
 }
 
+
 .primaryAction:hover {
   background: var(--primary-dark);
 }
+
 
 .dangerAction {
   background: var(--danger);
   color: #ffffff;
 }
+
 
 .iconAction {
   background: var(--bg-card);
@@ -1520,10 +1634,12 @@ textarea {
   padding: 9px;
 }
 
+
 .iconAction.active {
   border-color: var(--primary);
   color: var(--primary);
 }
+
 
 .iconAction:disabled,
 .primaryAction:disabled,
@@ -1531,6 +1647,7 @@ textarea {
   cursor: not-allowed;
   opacity: 0.7;
 }
+
 
 .filterCount {
   align-items: center;
@@ -1549,9 +1666,11 @@ textarea {
   top: -5px;
 }
 
+
 .filterPanel {
   padding: 12px;
 }
+
 
 .filterControls {
   align-items: end;
@@ -1560,12 +1679,14 @@ textarea {
   grid-template-columns: minmax(170px, 1fr) repeat(2, minmax(150px, 0.8fr)) auto;
 }
 
+
 .logFilterControls {
   align-items: end;
   display: grid;
   gap: 10px;
   grid-template-columns: minmax(220px, 1fr) auto;
 }
+
 
 .filterControls label,
 .logFilterControls label {
@@ -1578,6 +1699,7 @@ textarea {
   text-transform: uppercase;
 }
 
+
 .filterControls select,
 .filterControls input,
 .logFilterControls input {
@@ -1589,12 +1711,14 @@ textarea {
   padding: 8px 10px;
 }
 
+
 .filterControls select:focus,
 .filterControls input:focus,
 .logFilterControls input:focus {
   border-color: var(--primary);
   outline: 2px solid var(--primary-soft);
 }
+
 
 .filterClear {
   align-items: center;
@@ -1611,16 +1735,19 @@ textarea {
   padding: 8px 11px;
 }
 
+
 .filterClear:hover:not(:disabled) {
   border-color: var(--primary);
   color: var(--primary);
 }
+
 
 .decisionMessage {
   color: var(--primary);
   font-size: 13px;
   font-weight: 600;
 }
+
 
 .errorBanner,
 .successBanner {
@@ -1629,11 +1756,13 @@ textarea {
   padding: 12px;
 }
 
+
 .errorBanner {
   background: var(--danger-bg);
   border: 1px solid #fca5a5;
   color: #b91c1c;
 }
+
 
 .successBanner {
   background: var(--success-bg);
@@ -1641,9 +1770,11 @@ textarea {
   color: #0f766e;
 }
 
+
 .emptyState {
   color: var(--text-muted);
 }
+
 
 .emptyPanelText {
   background: var(--bg-muted);
@@ -1653,6 +1784,7 @@ textarea {
   font-size: 13px;
   padding: 14px;
 }
+
 
 .authPage {
   align-items: center;
@@ -1667,6 +1799,7 @@ textarea {
   font-family: 'Inter', sans-serif;
 }
 
+
 .authPanel {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -1680,6 +1813,7 @@ textarea {
   width: 100%;
 }
 
+
 .authTitle {
   color: var(--text-main);
   font-size: 36px;
@@ -1689,16 +1823,19 @@ textarea {
   text-align: center;
 }
 
+
 .authForm {
   display: grid;
   gap: 20px;
 }
+
 
 .inputGroup {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 
 .inputGroup input {
   background: var(--bg-muted) !important;
@@ -1712,9 +1849,11 @@ textarea {
   transition: all 0.3s ease;
 }
 
+
 .inputGroup input::placeholder {
   color: var(--text-muted);
 }
+
 
 .inputGroup input:focus {
   border-color: var(--primary) !important;
@@ -1723,12 +1862,14 @@ textarea {
   box-shadow: 0 0 10px rgba(37, 99, 235, 0.1);
 }
 
+
 .inputIcon {
   position: absolute;
   right: 20px;
   color: var(--text-muted);
   pointer-events: none;
 }
+
 
 .authFormActionRow {
   display: flex;
@@ -1738,6 +1879,7 @@ textarea {
   margin-top: -8px;
 }
 
+
 .forgotPasswordLink {
   color: var(--text-muted);
   text-decoration: none;
@@ -1745,10 +1887,12 @@ textarea {
   transition: color 0.2s ease;
 }
 
+
 .forgotPasswordLink:hover {
   color: var(--text-main);
   text-decoration: underline;
 }
+
 
 .authSubmitBtn {
   background: var(--primary);
@@ -1764,11 +1908,13 @@ textarea {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
+
 .authSubmitBtn:hover {
   background: var(--primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
 }
+
 
 .authSubmitBtn:disabled {
   background: rgba(37, 99, 235, 0.5);
@@ -1776,6 +1922,7 @@ textarea {
   cursor: not-allowed;
   transform: none;
 }
+
 
 .authToggleRow {
   display: grid;
@@ -1787,6 +1934,7 @@ textarea {
   border-radius: 30px;
   border: 1px solid var(--border);
 }
+
 
 .authToggleBtn {
   background: transparent;
@@ -1800,15 +1948,18 @@ textarea {
   transition: all 0.3s ease;
 }
 
+
 .authToggleBtn:hover {
   color: var(--text-main);
 }
+
 
 .authToggleBtn.active {
   background: var(--primary);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
 
 .secondaryAction,
 .primaryAction {
@@ -1823,15 +1974,18 @@ textarea {
   padding: 9px 13px;
 }
 
+
 .secondaryAction {
   background: transparent;
   border: 1px solid #bfdbfe;
   color: #2563eb;
 }
 
+
 .secondaryAction:hover {
   background: #eff6ff;
 }
+
 
 .secondaryAction.active {
   background: #2563eb;
@@ -1839,10 +1993,12 @@ textarea {
   color: #ffffff;
 }
 
+
 .authSubmit {
   margin-top: 4px;
   width: 100%;
 }
+
 
 .linkButton {
   background: transparent;
@@ -1853,9 +2009,11 @@ textarea {
   margin: 18px auto 0;
 }
 
+
 .settingsPanel {
   align-self: start;
 }
+
 
 .settingRow {
   align-items: center;
@@ -1865,10 +2023,12 @@ textarea {
   min-height: 38px;
 }
 
+
 .settingRow span {
   color: var(--text-main);
   font-weight: 600;
 }
+
 
 .themeToggle {
   align-items: center;
@@ -1883,10 +2043,12 @@ textarea {
   width: 48px;
 }
 
+
 .themeToggle.on {
   background: var(--primary);
   border-color: var(--primary);
 }
+
 
 .themeToggleThumb {
   align-items: center;
@@ -1901,15 +2063,18 @@ textarea {
   width: 20px;
 }
 
+
 .themeToggle.on .themeToggleThumb {
   color: #ffffff;
   transform: translateX(22px);
 }
 
+
 :root[data-theme="dark"] .themeToggle.on .themeToggleThumb {
   background: #0f172a;
   color: #ffffff;
 }
+
 
 .accountDetails {
   display: grid;
@@ -1917,11 +2082,13 @@ textarea {
   margin: 0;
 }
 
+
 .accountDetails div,
 .detailList div {
   display: grid;
   gap: 4px;
 }
+
 
 .accountDetails dt,
 .detailList dt {
@@ -1931,10 +2098,12 @@ textarea {
   text-transform: uppercase;
 }
 
+
 .accountDetails dd,
 .detailList dd {
   margin: 0;
 }
+
 
 .detailList {
   display: grid;
@@ -1942,11 +2111,13 @@ textarea {
   margin: 14px 0 0;
 }
 
+
 .attachmentList {
   display: grid;
   gap: 10px;
   margin-top: 12px;
 }
+
 
 .attachmentItem {
   align-items: center;
@@ -1962,9 +2133,11 @@ textarea {
   text-align: left;
 }
 
+
 .attachmentItem:hover {
   border-color: var(--primary);
 }
+
 
 .attachmentItem small {
   color: var(--text-muted);
@@ -1972,11 +2145,13 @@ textarea {
   margin-top: 4px;
 }
 
+
 .attachmentActions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+
 
 .attachmentActions button {
   align-items: center;
@@ -1992,9 +2167,11 @@ textarea {
   padding: 7px 10px;
 }
 
+
 .attachmentActions button:hover {
   border-color: var(--primary);
 }
+
 
 .errorText {
   color: var(--danger);
@@ -2002,6 +2179,7 @@ textarea {
   font-weight: 600;
   margin-top: 10px;
 }
+
 
 .documentModal {
   align-items: center;
@@ -2013,6 +2191,7 @@ textarea {
   position: fixed;
   z-index: 20;
 }
+
 
 .documentModalPanel {
   background: var(--bg-card);
@@ -2027,6 +2206,7 @@ textarea {
   overflow: hidden;
 }
 
+
 .documentModalHeader {
   display: flex;
   align-items: center;
@@ -2036,12 +2216,14 @@ textarea {
   border-bottom: 1px solid var(--border);
 }
 
+
 .documentModalHeader h2 {
   font-size: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 
 .documentFrame,
 .documentImage,
@@ -2055,9 +2237,11 @@ textarea {
   border-radius: 8px;
 }
 
+
 .documentImage {
   object-fit: contain;
 }
+
 
 .documentFallback {
   align-items: center;
@@ -2067,9 +2251,11 @@ textarea {
   padding: 24px;
 }
 
+
 .spin {
   animation: spin 0.8s linear infinite;
 }
+
 
 @keyframes spin {
   from {
@@ -2080,10 +2266,12 @@ textarea {
   }
 }
 
+
 @media (max-width: 960px) {
   .appShell {
     grid-template-columns: 1fr;
   }
+
 
   .sidebar {
     height: auto;
@@ -2092,17 +2280,21 @@ textarea {
     width: auto;
   }
 
+
   .contentShell {
     margin-left: 0;
   }
+
 
   .navList {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+
   .twoColumn {
     grid-template-columns: 1fr;
   }
+
 
   .emailRow,
   .logSummary,
@@ -2110,39 +2302,48 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+
   .metricGrid,
   .modalSplit {
     grid-template-columns: 1fr;
   }
 
+
   .verificationWorkspace {
     grid-template-columns: 1fr;
   }
+
 
   .documentReviewPane {
     grid-template-rows: auto auto;
   }
 
+
   .documentMiniGrid {
     max-height: none;
   }
+
 
   .filterControls {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+
   .logFilterControls {
     grid-template-columns: 1fr auto;
   }
+
 
   .auditMetaGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+
   .attachmentItem {
     align-items: flex-start;
     display: grid;
   }
+
 
   .inboxPanel {
     height: auto;
@@ -2150,43 +2351,53 @@ textarea {
   }
 }
 
+
 @media (max-width: 640px) {
   .pageContent {
     padding: 10px;
   }
 
+
   .profileName {
     display: none;
   }
+
 
   .navItem {
     justify-content: center;
   }
 
+
   .filterControls {
     grid-template-columns: 1fr;
   }
+
 
   .logFilterControls {
     grid-template-columns: 1fr;
   }
 
+
   .auditMetaGrid {
     grid-template-columns: 1fr;
   }
+
 
   .logModal {
     padding: 10px;
   }
 
+
   .logModalHeader {
     align-items: stretch;
   }
+
 
   .metricCard {
     min-height: 72px;
   }
 }
+
 
 /* Users page — add user form */
 .userFormGrid {
@@ -2195,6 +2406,7 @@ textarea {
   grid-template-columns: 1fr 1fr;
 }
 
+
 .userFormGrid label {
   color: var(--text-main);
   display: grid;
@@ -2202,6 +2414,7 @@ textarea {
   font-weight: 600;
   gap: 7px;
 }
+
 
 .userFormGrid input {
   background: var(--bg-muted);
@@ -2215,6 +2428,7 @@ textarea {
   transition: border-color 0.2s, outline 0.2s;
 }
 
+
 .userFormGrid select {
   background: var(--bg-muted);
   border: 1px solid var(--border);
@@ -2225,19 +2439,33 @@ textarea {
   width: 100%;
 }
 
+
 .userFormGrid input:focus {
   border-color: var(--primary);
   outline: 2px solid var(--primary-soft);
 }
+
+
+.userFormGrid input:-webkit-autofill,
+.userFormGrid input:-webkit-autofill:hover,
+.userFormGrid input:-webkit-autofill:focus,
+.userFormGrid input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--bg-muted) inset !important;
+  -webkit-text-fill-color: var(--text-main) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 
 .userFormGrid select:focus {
   border-color: var(--primary);
   outline: 2px solid var(--primary-soft);
 }
 
+
 .userFormGrid .fullSpan {
   grid-column: 1 / -1;
 }
+
 
 .fieldLabel {
   color: var(--text-main);
@@ -2247,20 +2475,24 @@ textarea {
   margin-bottom: 8px;
 }
 
+
 .sourceToggleGroup {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
+
 .passwordField {
   position: relative;
 }
+
 
 .passwordField input {
   padding-right: 40px;
   width: 100%;
 }
+
 
 .passwordToggle {
   background: transparent;
@@ -2274,15 +2506,18 @@ textarea {
   top: 30px;
 }
 
+
 .passwordToggle:hover {
   color: var(--text-main);
 }
+
 
 .roleCardGroup {
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr 1fr;
 }
+
 
 .roleCard {
   align-items: flex-start;
@@ -2298,14 +2533,17 @@ textarea {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
+
 .roleCard:hover {
   border-color: var(--primary);
 }
+
 
 .roleCard.selected {
   background: var(--primary-soft);
   border-color: var(--primary);
 }
+
 
 .roleCardHeader {
   align-items: center;
@@ -2315,15 +2553,18 @@ textarea {
   gap: 8px;
 }
 
+
 .roleCard small {
   color: var(--text-muted);
   font-size: 12px;
   line-height: 1.4;
 }
 
+
 .moduleAccessDropdown {
   position: relative;
 }
+
 
 .moduleAccessDropdown summary,
 .moduleAccessSummary {
@@ -2340,9 +2581,11 @@ textarea {
   white-space: nowrap;
 }
 
+
 .moduleAccessDropdown summary::-webkit-details-marker {
   display: none;
 }
+
 
 .moduleAccessDropdown summary::after {
   content: "v";
@@ -2353,10 +2596,12 @@ textarea {
   top: 14px;
 }
 
+
 .moduleAccessDropdown.disabled .moduleAccessSummary {
   cursor: default;
   opacity: 0.75;
 }
+
 
 .moduleAccessSelect {
   background: var(--bg-muted);
@@ -2373,6 +2618,7 @@ textarea {
   z-index: 20;
 }
 
+
 .moduleAccessOption {
   align-items: center;
   display: flex !important;
@@ -2380,6 +2626,7 @@ textarea {
   gap: 9px !important;
   min-height: 24px;
 }
+
 
 .moduleAccessOption input {
   accent-color: var(--primary);
@@ -2389,11 +2636,13 @@ textarea {
   width: 15px;
 }
 
+
 .moduleAccessBadges {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
+
 
 .usersTableHeader {
   align-items: center;
@@ -2402,6 +2651,7 @@ textarea {
   justify-content: space-between;
 }
 
+
 .usersTableActions {
   align-items: center;
   display: flex;
@@ -2409,6 +2659,7 @@ textarea {
   gap: 9px;
   justify-content: flex-end;
 }
+
 
 .usersSearchField {
   align-items: center;
@@ -2423,6 +2674,7 @@ textarea {
   padding: 0 10px;
 }
 
+
 .usersSearchField input {
   background: transparent;
   border: 0;
@@ -2432,11 +2684,13 @@ textarea {
   width: 100%;
 }
 
+
 .filterButton {
   min-height: 34px;
   padding: 0 12px;
   position: relative;
 }
+
 
 .usersFilterPanel {
   border-top: 1px solid var(--border);
@@ -2444,9 +2698,11 @@ textarea {
   padding: 12px 18px 0;
 }
 
+
 .usersFilterControls {
   grid-template-columns: minmax(160px, 220px) minmax(190px, 260px) auto;
 }
+
 
 @media (max-width: 760px) {
   .usersTableHeader,
@@ -2455,45 +2711,55 @@ textarea {
     flex-direction: column;
   }
 
+
   .usersSearchField {
     min-width: 0;
     width: 100%;
   }
+
 
   .usersFilterControls {
     grid-template-columns: 1fr;
   }
 }
 
+
 .tableActionGroup {
   display: inline-flex;
   gap: 8px;
 }
 
+
 .iconAction.danger {
   color: var(--danger);
 }
+
 
 .iconAction.danger:hover:not(:disabled) {
   background: var(--danger-bg);
   border-color: var(--danger);
 }
 
+
 .userEditModalPanel {
   max-width: 460px;
 }
+
 
 .singleColumnForm {
   grid-template-columns: 1fr;
 }
 
+
 :root[data-theme="light"] .roleCard {
   background: #f8fafc;
 }
 
+
 :root[data-theme="light"] .roleCard.selected {
   background: #dbeafe;
 }
+
 
 .forceMatchToggle {
   align-items: center;
@@ -2506,6 +2772,7 @@ textarea {
   white-space: nowrap;
 }
 
+
 .forceMatchToggle input[type="checkbox"] {
   accent-color: var(--primary);
   cursor: pointer;
@@ -2513,10 +2780,12 @@ textarea {
   width: 15px;
 }
 
+
 .attachmentPreviewPanel {
   max-width: 960px;
   width: 90vw;
 }
+
 
 .attachmentPreviewBody {
   align-items: center;
@@ -2527,11 +2796,13 @@ textarea {
   padding: 12px 0;
 }
 
+
 .attachmentPreviewBody img {
   border-radius: 6px;
   max-height: 82vh;
   max-width: 100%;
 }
+
 
 .attachmentPreviewBody iframe {
   border: none;
@@ -2539,6 +2810,7 @@ textarea {
   height: 85vh;
   width: 100%;
 }
+
 
 /* Pagination Styling */
 .paginationRow {
@@ -2551,10 +2823,12 @@ textarea {
   color: var(--text-muted);
 }
 
+
 .paginationButtons {
   display: flex;
   gap: 8px;
 }
+
 
 .paginationBtn {
   align-items: center;
@@ -2573,25 +2847,30 @@ textarea {
   transition: all 0.2s ease;
 }
 
+
 .paginationBtn:hover:not(:disabled) {
   border-color: var(--primary);
   background: var(--bg-card);
 }
+
 
 .paginationBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+
 .paginationInfo {
   font-weight: 500;
 }
+
 
 /* Profile Dropdown Styling */
 .profileDropdownContainer {
   position: relative;
   display: inline-block;
 }
+
 
 .profileDropdownTrigger {
   align-items: center;
@@ -2609,10 +2888,12 @@ textarea {
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
+
 .profileDropdownTrigger:hover {
   transform: scale(1.05);
   filter: brightness(1.1);
 }
+
 
 .profileDropdownMenu {
   background: var(--bg-card);
@@ -2628,6 +2909,7 @@ textarea {
   animation: dropdownFadeIn 0.2s ease;
 }
 
+
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
@@ -2639,6 +2921,7 @@ textarea {
   }
 }
 
+
 .profileDropdownHeader {
   display: flex;
   align-items: center;
@@ -2646,6 +2929,7 @@ textarea {
   padding: 4px 8px 12px 8px;
   border-bottom: 1px solid var(--border);
 }
+
 
 .profileDropdownAvatar {
   background: var(--primary-soft);
@@ -2660,11 +2944,13 @@ textarea {
   justify-content: center;
 }
 
+
 .profileDropdownUserDetails {
   display: grid;
   min-width: 0;
   text-align: left;
 }
+
 
 .profileDropdownUserDetails strong {
   color: var(--text-main);
@@ -2674,6 +2960,7 @@ textarea {
   white-space: nowrap;
 }
 
+
 .profileDropdownEmail {
   color: var(--text-muted);
   font-size: 11px;
@@ -2682,9 +2969,11 @@ textarea {
   white-space: nowrap;
 }
 
+
 .profileDropdownBody {
   padding: 8px 0;
 }
+
 
 .profileDropdownItem {
   align-items: center;
@@ -2695,10 +2984,12 @@ textarea {
   padding: 6px 8px;
 }
 
+
 .profileDropdownDivider {
   border-top: 1px solid var(--border);
   margin: 4px 0;
 }
+
 
 .profileDropdownLogout {
   align-items: center;
@@ -2717,15 +3008,18 @@ textarea {
   transition: background 0.2s ease;
 }
 
+
 .profileDropdownLogout:hover {
   background: var(--danger-bg);
 }
+
 
 /* Application-wide polish for the verification workspace */
 :root {
   --card-shadow: 0 12px 28px rgba(2, 6, 23, 0.18);
   --card-shadow-light: 0 10px 26px rgba(15, 23, 42, 0.08);
 }
+
 
 :root[data-theme="light"] {
   --bg-app: #f6f8fb;
@@ -2740,17 +3034,21 @@ textarea {
   --danger-bg: #fee2e2;
 }
 
+
 :root[data-theme="dark"] {
-  --bg-app: #0f172a;
-  --bg-card: #172033;
-  --bg-muted: #111827;
-  --bg-row: #1d2a44;
-  --border: #334155;
+  --bg-app: #1e293b;     /* Softer slate background */
+  --bg-card: #273347;    /* Elevated, lighter card background */
+  --bg-muted: #151e2e;   /* Slightly darker than app background for contrast */
+  --bg-row: #2d3b54;     /* Lighter, distinct row background */
+  --border: #475569;
+  --bg-sidebar: #1e293b;    /* Softer borders */
 }
+
 
 .pageContent {
   background: var(--bg-app);
 }
+
 
 .panel,
 .reviewHeader,
@@ -2759,12 +3057,14 @@ textarea {
   box-shadow: var(--card-shadow);
 }
 
+
 :root[data-theme="light"] .panel,
 :root[data-theme="light"] .reviewHeader,
 :root[data-theme="light"] .metricCard,
 :root[data-theme="light"] .logModalPanel {
   box-shadow: var(--card-shadow-light);
 }
+
 
 .panelHeader h2,
 .panel h2,
@@ -2774,13 +3074,16 @@ textarea {
   letter-spacing: 0;
 }
 
+
 .reviewHeader h2 {
   font-size: 20px;
 }
 
+
 .metricGridFour {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
+
 
 .metricCard {
   align-items: center;
@@ -2791,6 +3094,7 @@ textarea {
   padding: 16px;
 }
 
+
 .metricCard small {
   color: var(--text-muted);
   font-size: 11px;
@@ -2798,11 +3102,13 @@ textarea {
   text-transform: none;
 }
 
+
 .metricCard strong {
   font-size: 28px;
   font-weight: 800;
   margin-top: 6px;
 }
+
 
 .metricCard em {
   color: var(--text-muted);
@@ -2813,6 +3119,7 @@ textarea {
   margin-top: 3px;
 }
 
+
 .metricIcon {
   border: 0;
   border-radius: 8px;
@@ -2820,21 +3127,26 @@ textarea {
   width: 44px;
 }
 
+
 :root[data-theme="light"] .metricIcon {
   color: #2563eb;
 }
+
 
 :root[data-theme="light"] .metricIcon.success {
   color: #16a34a;
 }
 
+
 :root[data-theme="light"] .metricIcon.warning {
   color: #f59e0b;
 }
 
+
 :root[data-theme="light"] .metricIcon.danger {
   color: #dc2626;
 }
+
 
 .toolGraphGrid {
   display: grid;
@@ -2843,21 +3155,25 @@ textarea {
   margin-top: 2px;
 }
 
+
 .toolGraphCard {
   display: grid;
   gap: 16px;
   min-height: 220px;
 }
 
+
 .compactHeader {
   justify-content: space-between;
   margin-bottom: 2px;
 }
 
+
 .toolGraphItem {
   display: grid;
   gap: 8px;
 }
+
 
 .toolGraphLabel {
   align-items: center;
@@ -2865,15 +3181,18 @@ textarea {
   justify-content: space-between;
 }
 
+
 .toolGraphLabel span {
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 700;
 }
 
+
 .toolGraphLabel strong {
   font-size: 20px;
 }
+
 
 .toolGraphTrack {
   background: var(--bg-muted);
@@ -2883,23 +3202,28 @@ textarea {
   overflow: hidden;
 }
 
+
 .toolGraphFill {
   display: block;
   height: 100%;
   min-width: 6px;
 }
 
+
 .toolGraphFill.new {
   background: var(--primary);
 }
+
 
 .toolGraphFill.pending {
   background: var(--warning);
 }
 
+
 .toolGraphFill.verified {
   background: var(--success);
 }
+
 
 .toolGraphFooter {
   align-items: baseline;
@@ -2910,9 +3234,11 @@ textarea {
   padding-top: 14px;
 }
 
+
 .toolGraphFooter strong {
   font-size: 26px;
 }
+
 
 .toolGraphFooter span {
   color: var(--text-muted);
@@ -2920,9 +3246,11 @@ textarea {
   font-weight: 700;
 }
 
+
 .emailRow {
   grid-template-columns: minmax(240px, 1.3fr) minmax(220px, 0.95fr) minmax(210px, auto);
 }
+
 
 .emailSender {
   color: var(--text-muted);
@@ -2934,9 +3262,11 @@ textarea {
   white-space: nowrap;
 }
 
+
 .emailFooter {
   min-width: 210px;
 }
+
 
 .fieldHint {
   color: var(--text-muted);
@@ -2946,9 +3276,11 @@ textarea {
   text-transform: none;
 }
 
+
 .fieldHint.error {
   color: var(--danger);
 }
+
 
 .filterControls select,
 .filterControls input,
@@ -2962,6 +3294,7 @@ textarea {
   padding: 8px 10px;
 }
 
+
 .historyToggleGroup {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -2971,6 +3304,7 @@ textarea {
   justify-self: start;
   padding: 4px;
 }
+
 
 .historyToggle {
   align-items: center;
@@ -2985,14 +3319,17 @@ textarea {
   padding: 7px 12px;
 }
 
+
 .historyToggle.active {
   background: var(--primary);
   color: #ffffff;
 }
 
+
 .documentHistoryFilters {
   grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.7fr) auto;
 }
+
 
 .auditControlBar {
   align-items: center;
@@ -3002,6 +3339,7 @@ textarea {
   min-width: 0;
   padding: 12px;
 }
+
 
 .auditSearchField,
 .auditModuleSelect {
@@ -3017,6 +3355,7 @@ textarea {
   padding: 0 11px;
 }
 
+
 .auditSearchField input,
 .auditModuleSelect select {
   background: transparent;
@@ -3027,14 +3366,17 @@ textarea {
   width: 100%;
 }
 
+
 .auditSearchField input::placeholder {
   color: var(--text-muted);
 }
+
 
 .auditModuleSelect select {
   cursor: pointer;
   font-weight: 700;
 }
+
 
 .auditSearchField:focus-within,
 .auditModuleSelect:focus-within {
@@ -3042,9 +3384,11 @@ textarea {
   outline: 2px solid var(--primary-soft);
 }
 
+
 .auditTableHeader {
   justify-content: flex-start;
 }
+
 
 .auditTableHeader span {
   color: var(--text-muted);
@@ -3053,6 +3397,7 @@ textarea {
   margin-left: auto;
 }
 
+
 .auditTableWrap {
   max-width: 100%;
   min-width: 0;
@@ -3060,19 +3405,23 @@ textarea {
   overscroll-behavior-x: contain;
 }
 
+
 .auditLogTable {
   min-width: 1040px;
 }
+
 
 .auditLogTable th:first-child,
 .auditLogTable td:first-child {
   width: 48px;
 }
 
+
 .auditLogTable td:first-child {
   font-weight: 400;
   text-transform: none;
 }
+
 
 .auditLogTable td:last-child,
 .auditLogTable th:last-child {
@@ -3080,28 +3429,34 @@ textarea {
   width: 110px;
 }
 
+
 .auditRow {
   cursor: pointer;
 }
+
 
 .auditRow.expanded,
 .auditRow:hover {
   background: var(--bg-muted);
 }
 
+
 .auditExpandCell {
   color: var(--primary);
   text-align: center;
 }
+
 
 .auditDetailRow > td {
   background: var(--bg-muted);
   padding: 14px;
 }
 
+
 .auditDetailRow:hover {
   background: transparent;
 }
+
 
 .auditDetailGrid {
   display: grid;
@@ -3109,6 +3464,7 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   min-width: 0;
 }
+
 
 .auditDetailPanel {
   background: var(--bg-card);
@@ -3120,22 +3476,27 @@ textarea {
   padding: 13px;
 }
 
+
 .auditDetailPanel h3 {
   font-size: 14px;
   margin: 0;
 }
 
+
 .auditWidePanel {
   grid-column: 1 / -1;
 }
+
 
 .compactAuditMeta {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+
 .compactAuditMeta dd {
   font-weight: 650;
 }
+
 
 .auditFileList,
 .auditViolationList {
@@ -3145,6 +3506,7 @@ textarea {
   margin: 0;
   padding: 0;
 }
+
 
 .auditFileItem,
 .auditViolationList li {
@@ -3158,33 +3520,40 @@ textarea {
   padding: 10px 11px;
 }
 
+
 .auditFileItem.passed svg:first-child {
   color: var(--success);
 }
+
 
 .auditFileItem.failed,
 .auditViolationList li {
   border-color: rgba(248, 113, 113, 0.35);
 }
 
+
 .auditFileItem.failed svg:first-child {
   color: var(--danger);
 }
+
 
 .auditFileItem small {
   color: var(--text-muted);
   font-size: 12px;
 }
 
+
 .auditViolationList li {
   align-items: flex-start;
   grid-template-columns: 18px minmax(0, 1fr);
 }
 
+
 .auditViolationList svg {
   color: var(--danger);
   margin-top: 2px;
 }
+
 
 .auditTraceCopy {
   align-items: center;
@@ -3202,16 +3571,19 @@ textarea {
   padding: 7px 9px;
 }
 
+
 .auditTraceCopy span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+
 .auditTraceCopy:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
+
 
 .auditJsonBlock {
   margin: 0;
@@ -3219,13 +3591,16 @@ textarea {
   min-height: 150px;
 }
 
+
 .auditNestedTable {
   min-width: 640px;
 }
 
+
 .reviewNotesPanel {
   border-left: 4px solid var(--warning);
 }
+
 
 .reviewNotesList {
   display: grid;
@@ -3235,6 +3610,7 @@ textarea {
   padding: 0;
 }
 
+
 .reviewNoteItem {
   align-items: flex-start;
   background: var(--bg-row);
@@ -3243,31 +3619,38 @@ textarea {
   display: grid;
   gap: 10px;
   grid-template-columns: 20px minmax(0, 1fr);
+  font-size: 14px;
   line-height: 1.45;
   padding: 11px 12px;
 }
+
 
 .reviewNoteItem svg {
   margin-top: 2px;
 }
 
+
 .reviewNoteItem.issue svg {
   color: var(--danger);
 }
+
 
 .reviewNoteItem.pending svg {
   color: var(--warning);
 }
 
+
 .logSummary:hover {
   background: var(--bg-muted);
 }
+
 
 @media (max-width: 1100px) {
   .metricGridFour {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
 
 @media (max-width: 960px) {
   .toolGraphGrid,
@@ -3276,19 +3659,23 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+
   .auditControlBar,
   .auditDetailGrid {
     grid-template-columns: 1fr;
   }
 
+
   .auditLogTable {
     min-width: 920px;
   }
+
 
   .emailFooter {
     min-width: 0;
   }
 }
+
 
 @media (max-width: 640px) {
   .historyToggleGroup {
@@ -3296,13 +3683,16 @@ textarea {
     width: 100%;
   }
 
+
   .metricGridFour {
     grid-template-columns: 1fr;
   }
 
+
   .auditLogTable {
     min-width: 820px;
   }
+
 
   .reviewNotesLayout,
   .editFieldRow,
@@ -3312,23 +3702,11 @@ textarea {
     flex-direction: column;
   }
 
-  .modalHeaderActions {
-    align-items: flex-end;
-    flex-direction: column;
-    max-width: 100%;
-  }
-
-  .uploadAction {
-    max-width: min(76vw, 320px);
-  }
-
-  .documentActionGroup {
-    align-items: flex-start;
-    display: flex;
-    margin-top: 7px;
-  }
 
   .editFieldRow label:last-child {
     flex-basis: auto;
   }
 }
+
+
+

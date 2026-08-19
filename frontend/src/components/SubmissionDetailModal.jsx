@@ -80,25 +80,12 @@ function EditExtractionDialog({ extraction, issues, onClose, onSave }) {
   </div>;
 }
 
-function ReanalysisConfirmDialog({ check, saving, onClose, onConfirm }) {
-  const replacing = check?.action === "replace";
-  return <div className="logModal editExtractionOverlay" role="dialog" aria-modal="true">
-    <div className="logModalPanel reanalysisDialog">
-      <header className="logModalHeader"><div><h2>{replacing ? "Replace document" : "Add document"}</h2></div><button aria-label="Close" className="iconAction" disabled={saving} onClick={onClose} type="button"><XCircle size={17} /></button></header>
-      <p>{check?.message}</p>
-      <div className="actionRow"><button className="secondaryAction" disabled={saving} onClick={onClose} type="button">Cancel</button><button className="primaryAction" disabled={saving} onClick={onConfirm} type="button"><Upload size={15} />{saving ? "Starting full analysis..." : replacing ? "Replace and run analysis" : "Add and run analysis"}</button></div>
-    </div>
-  </div>;
-}
-
 export default function SubmissionDetailModal({ submissionId, account, onClose, onViewSummary }) {
   const [detail, setDetail] = useState(null);
   const [selectedFilename, setSelectedFilename] = useState("");
   const [draftChanges, setDraftChanges] = useState([]);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [replacementFile, setReplacementFile] = useState(null);
-  const [reanalysisCheck, setReanalysisCheck] = useState(null);
   const [reanalysing, setReanalysing] = useState(false);
   const [error, setError] = useState("");
   const replacementInputRef = useRef(null);
@@ -153,14 +140,18 @@ export default function SubmissionDetailModal({ submissionId, account, onClose, 
     finally { setSaving(false); }
   }
 
-  async function inspectReanalysis() {
-    if (!replacementFile || !detail) return;
+  async function replaceSelectedDocument(file) {
+    if (!file || !detail || !selectedFile) return;
     setError(""); setReanalysing(true);
     try {
-      const check = await docVerificationApi.reanalyse(submissionId, replacementFile, detail.revision);
-      setReanalysisCheck(check);
+      await docVerificationApi.replace(submissionId, selectedFile.filename, file, detail.revision);
+      const updated = await docVerificationApi.detail(submissionId);
+      setDetail(updated);
+      setSelectedFilename(selectedFile.filename);
+      setError("");
+      if (replacementInputRef.current) replacementInputRef.current.value = "";
     } catch (err) {
-      setError(err.message || "Could not inspect the selected document.");
+      setError(err.message || "Could not replace the selected document.");
       if (/updated by another user|being analysed/i.test(err.message || "")) {
         docVerificationApi.detail(submissionId).then(setDetail).catch(() => {});
       }
@@ -168,14 +159,13 @@ export default function SubmissionDetailModal({ submissionId, account, onClose, 
     finally { setReanalysing(false); }
   }
 
-  async function confirmReanalysis() {
-    if (!replacementFile || !detail) return;
+  async function startReanalysis() {
+    if (!detail?.reanalysis_required) return;
     setError(""); setReanalysing(true);
     try {
-      const result = await docVerificationApi.reanalyse(submissionId, replacementFile, detail.revision, true);
+      const result = await docVerificationApi.reanalyse(submissionId, detail.revision);
       setDetail((current) => current ? { ...current, status: "PROCESSING", revision: result.revision, summary: result.message, issues: [], pending_documents: [], extracted_documents: [], manual_changes: [], files: [] } : current);
-      setSelectedFilename(""); setReplacementFile(null); setReanalysisCheck(null);
-      if (replacementInputRef.current) replacementInputRef.current.value = "";
+      setSelectedFilename("");
     } catch (err) {
       setError(err.message || "Could not start document reanalysis.");
       if (/updated by another user|being analysed/i.test(err.message || "")) {
@@ -186,12 +176,12 @@ export default function SubmissionDetailModal({ submissionId, account, onClose, 
   }
 
   return <div className="logModal" role="dialog" aria-modal="true"><div className="logModalPanel verificationModalPanel">
-    <header className="logModalHeader"><div>{detail && <VerificationStatusBadge status={detail.status} />}<h2>{detail?.candidate_name || "Loading..."}</h2></div><div className="modalHeaderActions">{canWrite && detail?.status !== "PROCESSING" && <><input accept="application/pdf,image/*" className="visuallyHidden" onChange={(event) => setReplacementFile(event.target.files?.[0] || null)} ref={replacementInputRef} type="file" /><button aria-label="Upload a document for reanalysis" className="secondaryAction uploadAction" onClick={() => replacementInputRef.current?.click()} title={replacementFile ? `Selected: ${replacementFile.name}` : "Upload a document for reanalysis"} type="button"><Upload size={14} /><span>{replacementFile ? replacementFile.name : "Upload document"}</span></button></>}<button aria-label={detail?.status === "PROCESSING" ? "Close; reanalysis continues" : "Close"} className="iconAction closeAction" onClick={onClose} title={detail?.status === "PROCESSING" ? "Close; reanalysis continues" : "Close"} type="button"><XCircle size={17} /></button></div></header>
+    <header className="logModalHeader"><div>{detail && <VerificationStatusBadge status={detail.status} />}<h2>{detail?.candidate_name || "Loading..."}</h2></div><div className="modalHeaderActions"><button aria-label={detail?.status === "PROCESSING" ? "Close; reanalysis continues" : "Close"} className="iconAction closeAction" onClick={onClose} title={detail?.status === "PROCESSING" ? "Close; reanalysis continues" : "Close"} type="button"><XCircle size={17} /></button></div></header>
     {error && <div className="errorBanner">{error}</div>}
     {detail?.status === "PROCESSING" ? <div className="reanalysisLoadingState"><LoaderCircle className="reanalysisSpinner" size={34} /><strong>Reanalysing documents</strong><span>The LLM is extracting the documents again. This view will refresh when the verification is complete.</span></div> : detail && <>
-      <section className="auditSummary"><div className="auditDecision"><FileText size={20} /><div><strong>{detail.summary || "Awaiting verdict"}</strong><small className="emptyText">Submitted {formatDateTime(detail.created_at)}</small></div></div><dl className="auditMetaGrid"><div><dt><Clock3 size={14} />Last updated</dt><dd>{formatDateTime(detail.updated_at)}</dd></div><div><dt><ListChecks size={14} />Issues found</dt><dd>{issues.length}</dd></div><div><dt><FileText size={14} />Documents</dt><dd><span className="documentCountValue">{files.length}</span><span className="documentActionGroup"><button className="secondaryAction compactAction" onClick={() => onViewSummary?.(submissionId)} type="button">Summarise candidate</button>{canWrite && replacementFile && detail.status !== "PROCESSING" && <button className="primaryAction compactAction" disabled={reanalysing} onClick={inspectReanalysis} type="button"><Upload size={13} />{reanalysing ? "Checking..." : "Reanalyse"}</button>}</span></dd></div><div><dt><AlertTriangle size={14} />Pending</dt><dd>{(detail.pending_documents || []).length}</dd></div></dl></section>
+      <section className="auditSummary"><div className="auditDecision"><FileText size={20} /><div><strong>{detail.summary || "Awaiting verdict"}</strong><small className="emptyText">Submitted {formatDateTime(detail.created_at)}</small></div></div><dl className="auditMetaGrid"><div><dt><Clock3 size={14} />Last updated</dt><dd>{formatDateTime(detail.updated_at)}</dd></div><div><dt><ListChecks size={14} />Issues found</dt><dd>{issues.length}</dd></div><div><dt><FileText size={14} />Documents</dt><dd><span className="documentCountValue">{files.length}</span><span className="documentActionGroup"><button className="secondaryAction compactAction" onClick={() => onViewSummary?.(submissionId)} type="button">Summarise candidate</button>{canWrite && detail.reanalysis_required && detail.status !== "PROCESSING" && <button className="primaryAction compactAction" disabled={reanalysing} onClick={startReanalysis} type="button"><Send size={13} />{reanalysing ? "Starting..." : "Reanalyse"}</button>}</span></dd></div><div><dt><AlertTriangle size={14} />Pending</dt><dd>{(detail.pending_documents || []).length}</dd></div></dl></section>
       {(notes.length > 0 || confirmedChanges.length > 0) && <section className={`reviewNotesLayout ${confirmedChanges.length ? "withChanges" : ""}`}><div className="modalSection reviewNotesPanel"><div className="modalSectionHeader"><AlertTriangle size={16} /><h3>Review notes</h3></div>{notes.length ? <ul className="reviewNotesList">{notes.map((note, index) => <li className="reviewNoteItem issue" key={`${note}-${index}`}><AlertTriangle size={15} /><span>{note}</span></li>)}</ul> : <p className="emptyText">No review notes were generated.</p>}</div>{confirmedChanges.length > 0 && <div className="modalSection manualChangesPanel"><div className="modalSectionHeader"><CheckCircle2 size={16} /><h3>Changes made by user</h3></div><ul className="reviewNotesList">{confirmedChanges.map((change, index) => <li className="reviewNoteItem" key={`${change.filename}-${change.field}-${index}`}><CheckCircle2 size={15} /><span><strong>{change.filename}</strong>: {label(change.field)} changed to <strong>{valueText(change.to)}</strong> ({change.status === "match" ? "Matched" : "Mismatch"})</span></li>)}</ul></div>}</section>}
-      <section className="verificationWorkspace"><aside className="documentGridPane"><div className="modalSectionHeader"><FileText size={16} /><h3>Submitted documents</h3></div>{files.length ? <div className="documentMiniGrid">{files.map((file) => { const extraction = extractions.find((item) => item.originalName === file.filename); const issue = documentIssueMap.get(file.filename); return <button className={`documentMiniCard ${selectedFile?.filename === file.filename ? "selected" : ""}`} key={file.id} onClick={() => setSelectedFilename(file.filename)} type="button"><div className="docThumbWrap"><DocumentThumbnail filename={file.filename} url={file.url} /></div><span className="documentMiniTitle">{label(extraction?.document_type)}</span><span className="documentMiniMeta">{fileSize(file.size_bytes)}</span><span className={issue ? "badge badgeMismatch" : "badge badgeMatch"}>{issue ? "Review" : "Matched"}</span></button>; })}</div> : <p className="emptyText">No documents are available yet.</p>}</aside><div className="documentReviewPane"><div className="documentPreviewPanel"><div className="documentPreviewHeader"><div><strong>{selectedFile?.filename || "No document selected"}</strong><span>{label(selectedExtraction?.document_type)}</span></div>{selectedFile && <button className="secondaryAction" onClick={() => openFile(selectedFile.url)} type="button"><ExternalLink size={14} />Open</button>}</div><div className="verificationPreviewSurface"><DocumentPreview file={selectedFile} /></div></div><section className="modelFieldsPanel"><div className="modelFieldsHeader"><div className="modalSectionHeader"><ListChecks size={16} /><h3>Model extracted details</h3></div>{canWrite && selectedFields.length > 0 && <button className="secondaryAction" onClick={() => setEditing(true)} type="button"><Pencil size={14} />Edit</button>}</div>{selectedFields.length === 0 ? <p className="emptyPanelText">No extracted fields are available for this document yet.</p> : <div className="fieldResultGrid">{selectedFields.map(([field, value]) => { const match = fieldState(selectedExtraction, field, issues) === "match"; const Icon = match ? CheckCircle2 : AlertTriangle; return <div className={`fieldResultCard ${match ? "fieldMatch" : "fieldMismatch"}`} key={field}><div><span>{label(field)}</span><strong>{valueText(value)}</strong></div><span className="fieldResultBadge"><Icon size={14} />{match ? "Matched" : "Mismatch"}</span></div>; })}</div>}{draftChanges.length > 0 && <div className="actionRow confirmChangesRow"><span>{draftChanges.length} reviewed field{draftChanges.length === 1 ? "" : "s"} waiting for confirmation.</span><button className="primaryAction" disabled={saving} onClick={confirmChanges} type="button"><Send size={15} />{saving ? "Confirming..." : "Confirm submission"}</button></div>}</section></div></section>
+      <section className="verificationWorkspace"><aside className="documentGridPane"><div className="modalSectionHeader"><FileText size={16} /><h3>Submitted documents</h3></div>{files.length ? <div className="documentMiniGrid">{files.map((file) => { const extraction = extractions.find((item) => item.originalName === file.filename); const issue = documentIssueMap.get(file.filename); return <button className={`documentMiniCard ${selectedFile?.filename === file.filename ? "selected" : ""}`} key={file.id} onClick={() => setSelectedFilename(file.filename)} type="button"><div className="docThumbWrap"><DocumentThumbnail filename={file.filename} url={file.url} /></div><span className="documentMiniTitle">{label(extraction?.document_type)}</span><span className="documentMiniMeta">{fileSize(file.size_bytes)}</span><span className={issue ? "badge badgeMismatch" : "badge badgeMatch"}>{issue ? "Review" : "Matched"}</span></button>; })}</div> : <p className="emptyText">No documents are available yet.</p>}</aside><div className="documentReviewPane"><div className="documentPreviewPanel"><div className="documentPreviewHeader"><div><strong>{selectedFile?.filename || "No document selected"}</strong><span>{label(selectedExtraction?.document_type)}</span></div>{selectedFile && <div className="documentPreviewActions"><button className="secondaryAction compactAction" onClick={() => openFile(selectedFile.url)} type="button"><ExternalLink size={14} />Open</button>{canWrite && detail.status !== "PROCESSING" && <><input accept="application/pdf,image/*" className="visuallyHidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) replaceSelectedDocument(file); }} ref={replacementInputRef} type="file" /><button className="secondaryAction compactAction" onClick={() => replacementInputRef.current?.click()} type="button"><Upload size={14} />Replace document</button></>}</div>}</div><div className="verificationPreviewSurface"><DocumentPreview file={selectedFile} /></div></div><section className="modelFieldsPanel"><div className="modelFieldsHeader"><div className="modalSectionHeader"><ListChecks size={16} /><h3>Model extracted details</h3></div>{canWrite && selectedFields.length > 0 && <button className="secondaryAction" onClick={() => setEditing(true)} type="button"><Pencil size={14} />Edit</button>}</div>{selectedFields.length === 0 ? <p className="emptyPanelText">No extracted fields are available for this document yet.</p> : <div className="fieldResultGrid">{selectedFields.map(([field, value]) => { const match = fieldState(selectedExtraction, field, issues) === "match"; const Icon = match ? CheckCircle2 : AlertTriangle; return <div className={`fieldResultCard ${match ? "fieldMatch" : "fieldMismatch"}`} key={field}><div><span>{label(field)}</span><strong>{valueText(value)}</strong></div><span className="fieldResultBadge"><Icon size={14} />{match ? "Matched" : "Mismatch"}</span></div>; })}</div>}{draftChanges.length > 0 && <div className="actionRow confirmChangesRow"><span>{draftChanges.length} reviewed field{draftChanges.length === 1 ? "" : "s"} waiting for confirmation.</span><button className="primaryAction" disabled={saving} onClick={confirmChanges} type="button"><Send size={15} />{saving ? "Confirming..." : "Confirm submission"}</button></div>}</section></div></section>
     </>}
-  </div>{editing && <EditExtractionDialog extraction={selectedExtraction} issues={issues} onClose={() => setEditing(false)} onSave={stageChanges} />}{reanalysisCheck && <ReanalysisConfirmDialog check={reanalysisCheck} saving={reanalysing} onClose={() => setReanalysisCheck(null)} onConfirm={confirmReanalysis} />}</div>;
+  </div>{editing && <EditExtractionDialog extraction={selectedExtraction} issues={issues} onClose={() => setEditing(false)} onSave={stageChanges} />}</div>;
 }

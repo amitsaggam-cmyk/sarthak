@@ -23,7 +23,7 @@ from app.services.doc_verification.repository import (
     submission_pending_documents,
 )
 from app.services.doc_verification.google_drive import GoogleDriveImportService
-from app.services.doc_verification.storage import DocumentStorageService
+from app.services.doc_verification.storage import DocumentStorageService, StoredDocument
 
 
 logger = logging.getLogger(__name__)
@@ -151,6 +151,7 @@ class DocumentVerificationService:
             created_at=submission.created_at,
             updated_at=submission.updated_at,
             revision=submission.revision,
+            reanalysis_required=submission.pipeline_status_raw == "REPLACED",
             summary=submission.summary,
             issues=submission_issues(submission),
             pending_documents=submission_pending_documents(submission),
@@ -183,6 +184,50 @@ class DocumentVerificationService:
         duplicate = any(file.filename.casefold() == safe_filename.casefold() for file in files)
         action = "replace" if duplicate else "add"
         return action, safe_filename, submission.revision
+
+    async def replace_document(
+        self,
+        submission_id: int,
+        target_filename: str,
+        upload: UploadFile,
+        expected_revision: int,
+    ) -> tuple[str, int]:
+        submission = await self.repository.get_submission(submission_id)
+        if not submission:
+            raise LookupError("Submission not found.")
+        self.storage.validate_reanalysis_filename(upload.filename)
+        target_filename = Path(target_filename or "").name
+        stored_files: list[StoredDocument] = []
+        try:
+            stored_files = await self.storage.save_uploads(submission_id, submission.candidate_name, [upload])
+            if len(stored_files) != 1:
+                raise ValueError("Replace document accepts exactly one PDF or image document.")
+            saved = stored_files[0]
+            normalized = StoredDocument(
+                original_name=target_filename,
+                stored_name=saved.stored_name,
+                content_type=saved.content_type,
+                file_path=saved.file_path,
+                size_bytes=saved.size_bytes,
+            )
+            obsolete_paths, revision = await self.repository.replace_file(
+                submission_id,
+                expected_revision,
+                target_filename,
+                normalized,
+            )
+            await self.repository.session.commit()
+        except Exception:
+            await self.repository.session.rollback()
+            await self.storage.delete_files([file.file_path for file in stored_files])
+            raise
+        await self.storage.delete_files(obsolete_paths)
+        return target_filename, revision
+
+    async def start_reanalysis(self, submission_id: int, expected_revision: int) -> int:
+        revision = await self.repository.queue_reanalysis(submission_id, expected_revision)
+        await self.repository.session.commit()
+        return revision
 
     async def queue_reanalysis(
         self,

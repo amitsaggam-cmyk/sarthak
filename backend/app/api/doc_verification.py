@@ -240,43 +240,59 @@ async def get_candidate_summary(
 
 
 @router.post(
+    "/submissions/{submission_id}/replace",
+    response_model=DocumentReanalysisResponse,
+)
+async def replace_submission_document(
+    submission_id: int,
+    file: UploadFile = File(...),
+    target_filename: str = Form(...),
+    expected_revision: int = Form(..., ge=1),
+    current_user: User = Depends(require_module_write_access("document_verification")),
+    session: AsyncSession = Depends(get_session),
+) -> DocumentReanalysisResponse:
+    try:
+        filename, revision = await _service(session).replace_document(
+            submission_id,
+            target_filename,
+            file,
+            expected_revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except SQLAlchemyError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database unavailable while replacing document.") from exc
+
+    logger.info("[DOC_VERIFY] Document replaced user=%s submission_id=%s filename=%r revision=%s", current_user.email, submission_id, filename, revision)
+    return DocumentReanalysisResponse(
+        action="replace",
+        message="Document replaced. Click Reanalyse to run the full folder through the LLM again.",
+        filename=filename,
+        revision=revision,
+    )
+
+
+@router.post(
     "/submissions/{submission_id}/reanalyse",
     response_model=DocumentReanalysisResponse,
 )
 async def reanalyse_submission_document(
     submission_id: int,
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
     expected_revision: int = Form(..., ge=1),
-    confirm: bool = Form(False),
     current_user: User = Depends(require_module_write_access("document_verification")),
     session: AsyncSession = Depends(get_session),
 ) -> DocumentReanalysisResponse:
     service = _service(session)
     try:
-        if not confirm:
-            action, filename, revision = await service.inspect_reanalysis_upload(
-                submission_id,
-                file.filename,
-                expected_revision,
-            )
-            message = (
-                f"{filename} already exists in this submission. Do you want to replace it and run the full LLM analysis again?"
-                if action == "replace"
-                else f"{filename} was not found in this submission. Do you want to add it and run the full LLM analysis again?"
-            )
-            return DocumentReanalysisResponse(
-                action=action,
-                message=message,
-                filename=filename,
-                revision=revision,
-            )
-
-        action, filename, revision = await service.queue_reanalysis(
-            submission_id,
-            file,
-            expected_revision,
-        )
+        revision = await service.start_reanalysis(submission_id, expected_revision)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except ValueError as exc:
@@ -300,12 +316,7 @@ async def reanalyse_submission_document(
         action,
         revision,
     )
-    return DocumentReanalysisResponse(
-        action=action,
-        message="Document saved. Reanalysis has started.",
-        filename=filename,
-        revision=revision,
-    )
+    return DocumentReanalysisResponse(action="reanalyse", message="The complete document folder is being analysed again.", filename="", revision=revision)
 
 
 @router.get("/files/{file_id}/download")

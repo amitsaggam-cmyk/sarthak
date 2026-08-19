@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from typing import Any
 
+
 from app.services.doc_verification.pipeline.azure_vision_client import (
     build_vision_message,
     call_vision_with_retry,
@@ -11,7 +12,10 @@ from app.services.doc_verification.pipeline.azure_vision_client import (
 )
 
 
+
+
 logger = logging.getLogger(__name__)
+
 
 FIELD_SHAPE_PATTERNS = {
     "pan_number": re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]$"),
@@ -20,7 +24,7 @@ FIELD_SHAPE_PATTERNS = {
     "account_number": re.compile(r"^\d{6,20}$"),
 }
 ID_LIKE_FIELDS = {"pan_number", "aadhaar_number", "ifsc_code", "account_number"}
-DATE_FIELDS = {"dob", "doj", "last_working_day", "gap_start_date", "gap_end_date", "issue_date"}
+DATE_FIELDS = {"dob", "doj", "last_working_day", "gap_start_date", "gap_end_date"}
 INTEGER_FIELDS = {"passing_year", "total_points_filled"}
 BOOLEAN_FIELDS = {
     "has_joining_bonus",
@@ -45,7 +49,10 @@ DATE_FORMATS_TO_TRY = [
     "%d %b %Y",
     "%d-%b-%y",
     "%b %d, %Y",
+    "%B %Y",
+    "%b %Y",
 ]
+
 
 DOC_TYPE_FIELDS: dict[str, list[str]] = {
     "PAN_CARD": ["name", "dob", "pan_number"],
@@ -83,11 +90,9 @@ DOC_TYPE_FIELDS: dict[str, list[str]] = {
     "MARKSHEET": [
         "qualification_level",
         "passing_year",
-        "issue_date",
-        "marks_or_grade",
         "has_supplementary_or_backlog_text (boolean)",
     ],
-    "DEGREE_CERTIFICATE": ["qualification_level", "passing_year", "issue_date", "marks_or_grade"],
+    "DEGREE_CERTIFICATE": ["qualification_level", "passing_year"],
     "SIGNED_OFFER_LETTER_JADE": [
         "candidate_name",
         "grade",
@@ -106,11 +111,14 @@ DOC_TYPE_FIELDS: dict[str, list[str]] = {
     ],
 }
 
+
 PROMPT_TEMPLATE = """You are an expert HR document data extractor with vision.
 This document has already been classified as: {doc_type}
 You are shown {page_count} page image(s) of it.
 
+
 Extract ONLY these fields: {field_list}
+
 
 RULES:
 1. Reply ONLY with valid JSON: {{"extracted_data": {{...}}}}
@@ -119,6 +127,8 @@ RULES:
 4. For booleans about signatures/handwriting/stamps, judge from what you see.
 5. Do not include reasoning or extra text.
 """
+
+
 
 
 async def process_document(
@@ -130,12 +140,14 @@ async def process_document(
     if not fields or not page_images:
         return {"document_type": doc_type, "extracted_data": {}}
 
+
     prompt = PROMPT_TEMPLATE.format(
         doc_type=doc_type,
         page_count=len(page_images),
         field_list=", ".join(fields),
     )
     messages = build_vision_message(prompt, [image_to_data_url(page) for page in page_images])
+
 
     try:
         content = await call_vision_with_retry(messages, response_format={"type": "json_object"})
@@ -161,6 +173,8 @@ async def process_document(
         }
 
 
+
+
 def _normalize_id_fields(result: dict[str, Any]) -> dict[str, Any]:
     extracted = result.get("extracted_data", {})
     for field in ID_LIKE_FIELDS:
@@ -168,6 +182,8 @@ def _normalize_id_fields(result: dict[str, Any]) -> dict[str, Any]:
             extracted[field] = re.sub(r"\s+", "", str(extracted[field])).upper()
     result["extracted_data"] = extracted
     return result
+
+
 
 
 def _apply_shape_warnings(result: dict[str, Any]) -> dict[str, Any]:
@@ -182,10 +198,14 @@ def _apply_shape_warnings(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+
+
 def _clean_raw_date_string(raw: str) -> str:
     cleaned = raw.strip()
     cleaned = re.sub(r"^[\/\\:,;.\-\s]+", "", cleaned)
     return re.sub(r"[\/\\:,;]+$", "", cleaned).strip()
+
+
 
 
 def _normalize_date(raw_value: Any) -> str | None:
@@ -198,6 +218,8 @@ def _normalize_date(raw_value: Any) -> str | None:
         except ValueError:
             continue
     return None
+
+
 
 
 def _normalize_and_validate_dates(result: dict[str, Any]) -> dict[str, Any]:
@@ -217,6 +239,8 @@ def _normalize_and_validate_dates(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+
+
 def _coerce_integer_fields(result: dict[str, Any]) -> dict[str, Any]:
     extracted = result.get("extracted_data", {})
     for field in INTEGER_FIELDS:
@@ -229,6 +253,8 @@ def _coerce_integer_fields(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+
+
 def _coerce_boolean_fields(result: dict[str, Any]) -> dict[str, Any]:
     extracted = result.get("extracted_data", {})
     for field in BOOLEAN_FIELDS:
@@ -238,6 +264,8 @@ def _coerce_boolean_fields(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+
+
 def _clean_list_fields(result: dict[str, Any]) -> dict[str, Any]:
     extracted = result.get("extracted_data", {})
     for field in LIST_FIELDS:
@@ -245,3 +273,8 @@ def _clean_list_fields(result: dict[str, Any]) -> dict[str, Any]:
             extracted[field] = [item for item in extracted[field] if item]
     result["extracted_data"] = extracted
     return result
+
+
+
+
+

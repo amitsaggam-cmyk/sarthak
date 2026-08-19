@@ -125,11 +125,10 @@ HR can open the candidate summary for education and employment history
 
 Document submissions can be updated after their first verification run without creating a second candidate dossier.
 
-- A write-access user selects one PDF or image with **Upload document** at the top of the candidate review view.
-- **Reanalyse** appears alongside **Summarise candidate** after a document has been selected.
-- If a file with the same name already exists in the submission, the app asks the reviewer to confirm replacement. The old database record is replaced and its stored file is removed after the replacement is committed.
-- If the filename is new, the app asks the reviewer to confirm that it should be added to the candidate submission.
-- Confirming either action clears the prior extracted result, queues the complete candidate dossier for processing again, and refreshes the result in the review view when processing finishes.
+- A write-access user opens a document and selects one PDF or image with **Replace document** in that document's preview header.
+- The selected document is replaced in the candidate dossier, the old stored file is removed after the database update commits, and **Reanalyse** appears alongside **Summarise candidate**.
+- Clicking **Reanalyse** clears the review body, shows a loading state, and queues the complete candidate folder for a new LLM classification and extraction run.
+- When processing finishes, the review view reloads the new document and full verification result.
 - ZIP archives are intentionally not accepted for a replacement action; upload one extracted PDF or image at a time.
 - Reanalysis is unavailable while a submission is already processing, preventing overlapping pipeline jobs for the same dossier.
 
@@ -344,12 +343,15 @@ POST  /api/doc-verification/drive-submit
 GET   /api/doc-verification/submissions/{submission_id}
 PATCH /api/doc-verification/submissions/{submission_id}/manual-changes
 GET   /api/doc-verification/submissions/{submission_id}/candidate-summary
+POST  /api/doc-verification/submissions/{submission_id}/replace
 POST  /api/doc-verification/submissions/{submission_id}/reanalyse
 ```
 
 `PATCH /api/doc-verification/submissions/{submission_id}/manual-changes` requires `write` access. Its payload contains a non-empty `changes` array, where every item includes `filename`, `field`, `value`, and `status` (`match` or `mismatch`), plus the current `expected_revision`.
 
-`POST /api/doc-verification/submissions/{submission_id}/reanalyse` requires `write` access and multipart form data containing `file`, `expected_revision`, and `confirm`. The first call with `confirm=false` returns whether the selected filename will replace or add a document. A confirmed call (`confirm=true`) atomically updates the dossier, increments its revision, and queues reanalysis.
+`POST /api/doc-verification/submissions/{submission_id}/replace` requires `write` access and multipart form data containing `file`, `target_filename`, and `expected_revision`. It replaces the selected document and marks the dossier as requiring reanalysis.
+
+`POST /api/doc-verification/submissions/{submission_id}/reanalyse` requires `write` access and the current `expected_revision`. It atomically reserves the replaced dossier, increments its revision, and queues the complete folder for LLM reanalysis.
 
 ## Demo And Seed Data
 

@@ -182,17 +182,28 @@ export const docVerificationApi = {
       method: "PATCH",
       body: JSON.stringify({ changes, expected_revision: expectedRevision }),
     }),
-  reanalyse: async (submissionId, file, expectedRevision, confirm = false) => {
+  replace: async (submissionId, targetFilename, file, expectedRevision) => {
     const formData = new FormData();
+    formData.append("target_filename", targetFilename);
     formData.append("file", file);
     formData.append("expected_revision", String(expectedRevision));
-    formData.append("confirm", String(confirm));
+    const response = await authedFetch(`${API_BASE_URL}/doc-verification/submissions/${submissionId}/replace`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || "Could not replace document.");
+    return data;
+  },
+  reanalyse: async (submissionId, expectedRevision) => {
+    const formData = new FormData();
+    formData.append("expected_revision", String(expectedRevision));
     const response = await authedFetch(`${API_BASE_URL}/doc-verification/submissions/${submissionId}/reanalyse`, {
       method: "POST",
       body: formData,
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || "Could not queue document reanalysis.");
+    if (!response.ok) throw new Error(data.detail || "Could not start document reanalysis.");
     return data;
   },
   candidateSummary: (submissionId) =>
