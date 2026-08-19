@@ -47,6 +47,7 @@ USER_COLUMNS = {
 
 DOCUMENT_VERIFICATION_SUBMISSION_COLUMNS = {
     "revision": "INTEGER NOT NULL DEFAULT 1",
+    "manual_changes_json": "TEXT NULL",
 }
 
 def _add_missing_columns(sync_connection, table_name: str, columns: dict[str, str]) -> None:

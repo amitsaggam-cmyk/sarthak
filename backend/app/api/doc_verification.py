@@ -310,10 +310,9 @@ async def reanalyse_submission_document(
 
     background_tasks.add_task(process_document_verification_submission, submission_id)
     logger.info(
-        "[DOC_VERIFY] Reanalysis confirmed user=%s submission_id=%s action=%s revision=%s",
+        "[DOC_VERIFY] Reanalysis confirmed user=%s submission_id=%s revision=%s",
         current_user.email,
         submission_id,
-        action,
         revision,
     )
     return DocumentReanalysisResponse(action="reanalyse", message="The complete document folder is being analysed again.", filename="", revision=revision)

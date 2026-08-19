@@ -109,6 +109,7 @@ class DocumentVerificationSubmission(Base):
     issues_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     pending_documents_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     extracted_documents_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    manual_changes_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     submitted_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     processing_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)

@@ -1035,6 +1035,21 @@ tbody tr:hover {
   width: min(1380px, 98vw);
 }
 
+.processingState {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  min-height: 360px;
+  text-align: center;
+}
+
+.processingState span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 
 .logModalHeader {
   align-items: flex-start;
@@ -3707,6 +3722,5 @@ textarea {
     flex-basis: auto;
   }
 }
-
 
 

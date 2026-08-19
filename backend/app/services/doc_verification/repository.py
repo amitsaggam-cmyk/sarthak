@@ -158,7 +158,107 @@ class DocumentVerificationRepository:
         return result.scalars().first()
 
 
-    async def mark_completed(self, submission_id: int, result: dict) -> None:
+    async def apply_manual_changes(
+        self, submission_id: int, changes: list[dict], expected_revision: int
+    ) -> bool:
+        submission = await self.get_submission(submission_id)
+        if not submission or submission.revision != expected_revision or submission.status == "PROCESSING":
+            return False
+        documents = submission_extracted_documents(submission)
+        by_name = {str(item.get("originalName")): item for item in documents}
+        applied = []
+        for change in changes:
+            filename = str(change.get("filename") or "")
+            field = str(change.get("field") or "")
+            document = by_name.get(filename)
+            if not document or not field:
+                continue
+            data = document.setdefault("extracted_data", {})
+            previous = data.get(field)
+            value = change.get("value")
+            data[field] = value
+            statuses = document.setdefault("field_statuses", {})
+            statuses[field] = {"status": change.get("status", "mismatch"), "source": "manual"}
+            applied.append({"filename": filename, "field": field, "from": previous, "to": value, "status": change.get("status", "mismatch")})
+        if not applied:
+            return False
+        for document in documents:
+            document.pop("storedPath", None)
+        result = await self.session.execute(
+            update(DocumentVerificationSubmission)
+            .where(DocumentVerificationSubmission.id == submission_id, DocumentVerificationSubmission.revision == expected_revision)
+            .values(
+                extracted_documents_json=json.dumps(documents),
+                pipeline_status_raw="MANUAL_REVIEW",
+                manual_changes_json=json.dumps(applied),
+                revision=expected_revision + 1,
+                updated_at=datetime.utcnow(),
+            )
+        )
+        return result.rowcount == 1
+
+    async def replace_file(
+        self, submission_id: int, expected_revision: int, target_filename: str, file: StoredDocument
+    ) -> tuple[list[str], int]:
+        submission = await self.get_submission(submission_id)
+        if not submission or submission.revision != expected_revision or submission.status == "PROCESSING":
+            raise RuntimeError("This submission was updated by another user or is already processing.")
+        existing = await self.get_file_by_submission_and_name(submission_id, target_filename)
+        if not existing:
+            raise ValueError("The document to replace was not found.")
+        obsolete = [existing.file_path]
+        existing.filename = file.original_name
+        existing.stored_filename = file.stored_name
+        existing.content_type = file.content_type
+        existing.file_path = file.file_path
+        existing.size_bytes = file.size_bytes
+        result = await self.session.execute(
+            update(DocumentVerificationSubmission)
+            .where(DocumentVerificationSubmission.id == submission_id, DocumentVerificationSubmission.revision == expected_revision)
+            .values(pipeline_status_raw="REPLACED", revision=expected_revision + 1, updated_at=datetime.utcnow())
+        )
+        if result.rowcount != 1:
+            raise RuntimeError("This submission was updated by another user. Refresh and try again.")
+        return obsolete, expected_revision + 1
+
+    async def reset_for_reanalysis(
+        self, submission_id: int, expected_revision: int, file: StoredDocument
+    ) -> tuple[str, list[str], int]:
+        submission = await self.get_submission(submission_id)
+        if not submission or submission.revision != expected_revision or submission.status == "PROCESSING":
+            raise RuntimeError("This submission was updated by another user or is already processing.")
+        existing = await self.get_file_by_submission_and_name(submission_id, file.original_name)
+        obsolete: list[str] = []
+        action = "add"
+        if existing:
+            action = "replace"
+            obsolete.append(existing.file_path)
+            existing.stored_filename = file.stored_name
+            existing.content_type = file.content_type
+            existing.file_path = file.file_path
+            existing.size_bytes = file.size_bytes
+        else:
+            await self.add_files(submission_id, [file])
+        result = await self.session.execute(
+            update(DocumentVerificationSubmission)
+            .where(DocumentVerificationSubmission.id == submission_id, DocumentVerificationSubmission.revision == expected_revision)
+            .values(status="PROCESSING", pipeline_status_raw="REANALYSIS_QUEUED", processing_error=None, revision=expected_revision + 1, updated_at=datetime.utcnow())
+        )
+        if result.rowcount != 1:
+            raise RuntimeError("This submission was updated by another user. Refresh and try again.")
+        return action, obsolete, expected_revision + 1
+
+    async def queue_reanalysis(self, submission_id: int, expected_revision: int) -> int:
+        result = await self.session.execute(
+            update(DocumentVerificationSubmission)
+            .where(DocumentVerificationSubmission.id == submission_id, DocumentVerificationSubmission.revision == expected_revision, DocumentVerificationSubmission.status != "PROCESSING")
+            .values(status="PROCESSING", pipeline_status_raw="REANALYSIS_QUEUED", processing_error=None, revision=expected_revision + 1, updated_at=datetime.utcnow())
+        )
+        if result.rowcount != 1:
+            raise RuntimeError("This submission was updated by another user or is already processing.")
+        return expected_revision + 1
+
+    async def mark_completed(self, submission_id: int, result: dict, processing_revision: int) -> bool:
         """Persist the pipeline result without leaking local file paths."""
 
 
@@ -174,22 +274,24 @@ class DocumentVerificationRepository:
             "issues_json": json.dumps(result.get("action_items", [])),
             "pending_documents_json": json.dumps(rule_report.get("pending_documents", [])),
             "extracted_documents_json": json.dumps(_public_extractions(extracted_documents)),
+            "manual_changes_json": "[]",
             "processing_error": None,
             "updated_at": datetime.utcnow(),
         }
         if candidate_name:
             values["candidate_name"] = candidate_name
-        await self.session.execute(
+        updated = await self.session.execute(
             update(DocumentVerificationSubmission)
-            .where(DocumentVerificationSubmission.id == submission_id)
+            .where(DocumentVerificationSubmission.id == submission_id, DocumentVerificationSubmission.revision == processing_revision, DocumentVerificationSubmission.status == "PROCESSING")
             .values(**values)
         )
+        return updated.rowcount == 1
 
 
-    async def mark_failed(self, submission_id: int, error: str) -> None:
-        await self.session.execute(
+    async def mark_failed(self, submission_id: int, error: str, processing_revision: int) -> bool:
+        updated = await self.session.execute(
             update(DocumentVerificationSubmission)
-            .where(DocumentVerificationSubmission.id == submission_id)
+            .where(DocumentVerificationSubmission.id == submission_id, DocumentVerificationSubmission.revision == processing_revision, DocumentVerificationSubmission.status == "PROCESSING")
             .values(
                 status="NEEDS_HUMAN_REVIEW",
                 pipeline_status_raw="SYSTEM_ERROR",
@@ -199,6 +301,7 @@ class DocumentVerificationRepository:
                 updated_at=datetime.utcnow(),
             )
         )
+        return updated.rowcount == 1
 
 
 
@@ -218,3 +321,6 @@ def submission_pending_documents(submission: DocumentVerificationSubmission) -> 
 def submission_extracted_documents(submission: DocumentVerificationSubmission) -> list[dict]:
     return [item for item in _json_list(submission.extracted_documents_json) if isinstance(item, dict)]
 
+
+def submission_manual_changes(submission: DocumentVerificationSubmission) -> list[dict]:
+    return [item for item in _json_list(getattr(submission, "manual_changes_json", None)) if isinstance(item, dict)]
